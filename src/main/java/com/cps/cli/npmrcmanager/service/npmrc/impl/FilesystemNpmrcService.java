@@ -1,7 +1,6 @@
 package com.cps.cli.npmrcmanager.service.npmrc.impl;
 
 import com.cps.cli.npmrcmanager.model.NpmrcProfile;
-import com.cps.cli.npmrcmanager.service.configuration.ConfigurationService;
 import com.cps.cli.npmrcmanager.service.input.UserInputService;
 import com.cps.cli.npmrcmanager.service.npmrc.NpmrcService;
 import lombok.NonNull;
