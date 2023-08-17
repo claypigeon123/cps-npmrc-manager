@@ -3,8 +3,11 @@ package com.cps.cli.npmrcmanager.service.configuration.impl;
 import com.cps.cli.npmrcmanager.model.Configuration;
 import com.cps.cli.npmrcmanager.model.NpmrcProfile;
 import com.cps.cli.npmrcmanager.service.configuration.ConfigurationService;
+import com.cps.cli.npmrcmanager.service.input.UserInputService;
+import com.cps.cli.npmrcmanager.service.npmrc.NpmrcService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,26 +15,46 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class FilesystemConfigurationService implements ConfigurationService {
 
+    private static final Path DEFAULT_NPMRC_PATH = Path.of(System.getProperty("user.home"), ".npmrc");
+
     private static final Path CONFIG_FOLDER = Path.of(System.getProperty("user.home"), ".npmrcm");
     private static final Path PROFILES_FOLDER = CONFIG_FOLDER.resolve("profiles");
     private static final Path CONFIG_FILE_PATH = CONFIG_FOLDER.resolve("config.json");
 
+    @NonNull
     private final ObjectMapper objectMapper;
 
-    @Override
-    public String getConfigLocation() {
-        return CONFIG_FOLDER.toAbsolutePath().toString();
-    }
+    @NonNull
+    private final UserInputService userInputService;
+
+    @NonNull
+    private final NpmrcService npmrcService;
 
     @Override
-    public String getProfilesLocation() {
-        return PROFILES_FOLDER.toAbsolutePath().toString();
+    public void setup() {
+        Path npmrcPath = userInputService.promptForPath("Enter path to active npmrc file", DEFAULT_NPMRC_PATH);
+
+        File npmrcFile = new File(npmrcPath.toUri());
+
+        NpmrcProfile profile = (npmrcFile.exists() && npmrcFile.isFile())
+            ? npmrcService.recordExistingNpmrcIntoProfile(npmrcFile.getAbsolutePath(), PROFILES_FOLDER.toAbsolutePath().toString())
+            : npmrcService.recordNewNpmrcForCentralRegistryIntoProfile(npmrcFile.getAbsolutePath(), PROFILES_FOLDER.toAbsolutePath().toString());
+
+        Configuration configuration = Configuration.builder()
+            .npmrcPath(npmrcPath.toAbsolutePath().toString())
+            .profiles(new ArrayList<>(List.of(profile)))
+            .activeProfile(profile.name())
+            .build();
+
+        save(configuration);
     }
 
     @Override
@@ -96,7 +119,7 @@ public class FilesystemConfigurationService implements ConfigurationService {
     }
 
     @Override
-    public void save(Configuration configuration) {
+    public void save(@NonNull Configuration configuration) {
         File configFile = new File(CONFIG_FILE_PATH.toUri());
 
         try {

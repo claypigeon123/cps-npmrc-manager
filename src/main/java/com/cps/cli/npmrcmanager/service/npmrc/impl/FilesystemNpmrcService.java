@@ -20,7 +20,7 @@ public class FilesystemNpmrcService implements NpmrcService {
     private final UserInputService userInputService;
 
     @Override
-    public NpmrcProfile recordExistingNpmrcIntoProfile(@NonNull File npmrcFile, @NonNull String profilesLocation) {
+    public NpmrcProfile recordExistingNpmrcIntoProfile(@NonNull String npmrcLocation, @NonNull String profilesLocation) {
         System.out.println("Existing .npmrc file detected!");
 
         String currentNpmrcName = userInputService.promptForString("Enter a name for the current .npmrc config", "npm-central");
@@ -32,17 +32,17 @@ public class FilesystemNpmrcService implements NpmrcService {
             .path(profileLocation.toString())
             .build();
 
-        copy(npmrcFile.toPath(), Path.of(profile.path()));
+        copy(Path.of(npmrcLocation), Path.of(profile.path()));
 
         return profile;
     }
 
     @Override
-    public NpmrcProfile recordNewNpmrcForCentralRegistryIntoProfile(@NonNull File npmrcFile, @NonNull String profilesLocation) {
+    public NpmrcProfile recordNewNpmrcForCentralRegistryIntoProfile(@NonNull String npmrcLocation, @NonNull String profilesLocation) {
         System.out.println("No existing .npmrc file has been detected!");
         System.out.println("Creating default .npmrc pointing to npm central registry...");
 
-        try (PrintWriter pw = new PrintWriter(new BufferedOutputStream(new FileOutputStream(npmrcFile)))) {
+        try (PrintWriter pw = new PrintWriter(new BufferedOutputStream(new FileOutputStream(npmrcLocation)))) {
             pw.println("registry=https://registry.npmjs.org/");
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Error writing to .npmrc file: " + e.getMessage(), e);
@@ -56,13 +56,13 @@ public class FilesystemNpmrcService implements NpmrcService {
             .path(profileLocation.toString())
             .build();
 
-        copy(npmrcFile.toPath(), Path.of(profile.path()));
+        copy(Path.of(npmrcLocation), Path.of(profile.path()));
 
         return profile;
     }
 
     @Override
-    public void switchToProfile(@NonNull NpmrcProfile profile, @NonNull String npmrcLocation) {
+    public void switchToProfile( @NonNull String npmrcLocation, @NonNull NpmrcProfile profile) {
         copy(Path.of(profile.path()), Path.of(npmrcLocation));
     }
 

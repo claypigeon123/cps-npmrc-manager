@@ -1,17 +1,16 @@
 package com.cps.cli.npmrcmanager.service.configuration;
 
 import com.cps.cli.npmrcmanager.model.Configuration;
+import lombok.NonNull;
 
 public interface ConfigurationService {
-    String getConfigLocation();
-
-    String getProfilesLocation();
+    void setup();
 
     Configuration load();
 
     boolean exists();
 
-    void save(Configuration configuration);
+    void save(@NonNull Configuration configuration);
 
     void remove();
 }

@@ -9,5 +9,5 @@ public interface UserInputService {
 
     Path promptForPath(@NonNull String prompt, @NonNull Path defaultValue);
 
-    String promptForString(@NonNull String prompt, String defaultValue);
+    String promptForString(@NonNull String prompt, @NonNull String defaultValue);
 }

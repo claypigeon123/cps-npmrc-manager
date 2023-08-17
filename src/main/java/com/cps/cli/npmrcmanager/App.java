@@ -10,7 +10,7 @@ import picocli.CommandLine.Command;
 @Component
 @Command(
     name = "npmrcm",
-    version = "0.1.0",
+    version = "1.0.0",
     mixinStandardHelpOptions = true,
     subcommands = {
         SetupApi.class,

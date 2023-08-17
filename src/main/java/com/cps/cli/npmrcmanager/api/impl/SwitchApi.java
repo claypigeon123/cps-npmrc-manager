@@ -43,7 +43,7 @@ public class SwitchApi extends Api {
             throw new IllegalStateException("Profile [" + targetProfile.name() + "] is already active");
         }
 
-        npmrcService.switchToProfile(targetProfile, configuration.getNpmrcPath());
+        npmrcService.switchToProfile(configuration.getNpmrcPath(), targetProfile);
 
         System.out.printf("Switched to profile [%s]", targetProfile.name());
     }

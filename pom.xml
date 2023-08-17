@@ -11,12 +11,11 @@
 
     <groupId>com.cps.cli</groupId>
     <artifactId>cps-npmrc-manager</artifactId>
-    <version>${revision}</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <properties>
         <!-- BASIC META -->
         <java.version>17</java.version>
-        <revision>0.1.0-SNAPSHOT</revision>
 
         <!-- DEPENDENCY VERSIONING -->
         <spock-bom.version>2.3-groovy-4.0</spock-bom.version>
