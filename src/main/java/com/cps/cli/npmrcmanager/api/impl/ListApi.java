@@ -48,8 +48,8 @@ public class ListApi extends Api {
         }
 
         System.out.printf("%n");
-        System.out.printf("# profile name:              %s%n", profile.name());
-        System.out.printf("# persistent path:           %s%n", profile.path());
-        System.out.printf("# active?                    %s%n", isActive ? "yes" : "no");
+        System.out.printf("# profile name:         %s%n", profile.name());
+        System.out.printf("# persistent path:      %s%n", profile.path());
+        System.out.printf("# active?               %s%n", isActive ? "yes" : "no");
     }
 }
