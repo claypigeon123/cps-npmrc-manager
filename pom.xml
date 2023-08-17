@@ -24,6 +24,7 @@
         <snakeyaml.version>2.0</snakeyaml.version>
 
         <!-- PLUGIN VERSIONING -->
+        <appassembler.version>2.1.0</appassembler.version>
         <gmavenplus.version>3.0.0</gmavenplus.version>
         <surefire.version>3.1.2</surefire.version>
     </properties>
@@ -41,6 +42,12 @@
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli-spring-boot-starter</artifactId>
                 <version>${picocli.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli-codegen</artifactId>
+                <version>${picocli.version}</version>
+                <optional>true</optional>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -60,6 +67,10 @@
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli-codegen</artifactId>
         </dependency>
 
         <!-- UTILITY -->
@@ -99,8 +110,6 @@
 
     <build>
         <plugins>
-            <!-- Spring Boot packaging VS appassembler packaging - use only one -->
-
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -113,33 +122,6 @@
                     </excludes>
                 </configuration>
             </plugin>
-
-            <!--
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>appassembler-maven-plugin</artifactId>
-                <version>2.1.0</version>
-                <executions>
-                    <execution>
-                        <id>assemble</id>
-                        <goals>
-                            <goal>assemble</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <showConsoleWindow>true</showConsoleWindow>
-                            <programs>
-                                <program>
-                                    <mainClass>com.cps.cli.npmrcmanager.AppRunner</mainClass>
-                                    <id>app</id>
-                                </program>
-                            </programs>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
-
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
@@ -174,6 +156,40 @@
                     </statelessTestsetReporter>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.graalvm.buildtools</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <imageName>npmrcm</imageName>
+                            <mainClass>com.cps.cli.npmrcmanager.AppRunner</mainClass>
+                            <buildArgs>--no-fallback</buildArgs>
+                            <skipNativeTests>true</skipNativeTests>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>compile-no-fork</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

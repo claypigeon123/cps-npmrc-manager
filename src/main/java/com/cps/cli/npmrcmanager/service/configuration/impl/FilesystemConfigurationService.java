@@ -50,7 +50,7 @@ public class FilesystemConfigurationService implements ConfigurationService {
         try {
             configuration = objectMapper.readValue(configFile, Configuration.class);
         } catch (IOException e) {
-            throw new IllegalStateException("Error while parsing configuration json file", e);
+            throw new IllegalStateException("Error while parsing configuration json file: " + e.getMessage(), e);
         }
 
         Path npmrcPath = Path.of(configuration.getNpmrcPath()).toAbsolutePath();
