@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 @Command(name = "switch", description = "-> Switch to the specified .npmrc profile", mixinStandardHelpOptions = true)
@@ -34,10 +36,17 @@ public class SwitchApi extends Api {
 
     @Override
     protected void start() {
-        NpmrcProfile targetProfile = configuration.getProfiles().stream()
+        Optional<NpmrcProfile> targetProfileOpt = configuration.getProfiles().stream()
             .filter(p -> targetProfileName.equals(p.name()))
-            .findAny()
-            .orElseThrow(() -> new IllegalStateException("Target profile [" + targetProfileName + "] does not exist"));
+            .findAny();
+
+        if (targetProfileOpt.isEmpty()) {
+            System.err.printf("Target profile [%s] does not exist.%n", targetProfileName);
+            System.err.printf("SUGGESTION: List available profiles with \"npmrcm list\" or \"npmrcm list --verbose\"%n");
+            return;
+        }
+
+        NpmrcProfile targetProfile = targetProfileOpt.get();
 
         if (configuration.getActiveProfile().equals(targetProfile.name())) {
             throw new IllegalStateException("Profile [" + targetProfile.name() + "] is already active");
