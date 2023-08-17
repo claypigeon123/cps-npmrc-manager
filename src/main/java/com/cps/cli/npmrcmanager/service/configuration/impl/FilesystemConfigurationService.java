@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -77,11 +77,13 @@ public class FilesystemConfigurationService implements ConfigurationService {
         }
 
         Path npmrcPath = Path.of(configuration.getNpmrcPath()).toAbsolutePath();
-        String npmrcFileContents;
+        Optional<String> npmrcFileContents;
         try {
-            npmrcFileContents = Files.readString(npmrcPath);
+            npmrcFileContents = Optional.of(Files.readString(npmrcPath));
         } catch (IOException e) {
-            throw new RuntimeException("Could not parse file contents of [" + npmrcPath + "]: " + e.getMessage(), e);
+            System.err.printf("Could not parse file contents of .npmrc file at [%s]. Does it exist?%n", npmrcPath);
+            System.err.printf("SUGGESTION: Activate a configured profile with \"npmrcm switch <profile name>\" to have it created for you.%n%n");
+            npmrcFileContents = Optional.empty();
         }
 
         File profilesFolder = new File(PROFILES_FOLDER.toUri());
@@ -89,25 +91,25 @@ public class FilesystemConfigurationService implements ConfigurationService {
 
         if (profileFiles == null || profileFiles.length < 1) return configuration;
 
-        Arrays.stream(profileFiles).forEach(file -> {
+        for (File profileFile : profileFiles) {
             NpmrcProfile profile = NpmrcProfile.builder()
-                .name(file.getName())
-                .path(file.getAbsolutePath())
+                .name(profileFile.getName())
+                .path(profileFile.getAbsolutePath())
                 .build();
 
             String fileContents;
             try {
-                fileContents = Files.readString(file.toPath());
+                fileContents = Files.readString(profileFile.toPath());
             } catch (IOException e) {
-                throw new RuntimeException("Could not parse file contents of [" + file.getAbsolutePath() + "]: " + e.getMessage(), e);
+                throw new RuntimeException("Could not parse file contents of [" + profileFile.getAbsolutePath() + "]: " + e.getMessage(), e);
             }
 
-            if (npmrcFileContents.equals(fileContents)) {
+            if (npmrcFileContents.isPresent() && fileContents.equals(npmrcFileContents.get())) {
                 configuration.setActiveProfile(profile.name());
             }
 
             configuration.getProfiles().add(profile);
-        });
+        }
 
         return configuration;
     }
