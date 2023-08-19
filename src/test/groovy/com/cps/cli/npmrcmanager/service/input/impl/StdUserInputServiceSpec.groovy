@@ -111,9 +111,9 @@ class StdUserInputServiceSpec extends Specification {
 
         where:
         wrongInput                    | correctInput                                                         || expected
-        "\"/////\\//\\--...fd\"***\"" | "${System.lineSeparator()}"                                          || Path.of("home", "tester").toAbsolutePath()
-        "\"/////\\//\\--...fd\"***\"" | "${Path.of("usr", "var").toAbsolutePath()}${System.lineSeparator()}" || Path.of("usr", "var").toAbsolutePath()
-        "\"/////\\//\\--...fd\"***\"" | "${Path.of("usr", "var")}${System.lineSeparator()}"                  || Path.of("usr", "var")
+        "\"/////\\//\\\0--...fd\"***\"" | "${System.lineSeparator()}"                                          || Path.of("home", "tester").toAbsolutePath()
+        "\"/////\\//\\\0--...fd\"***\"" | "${Path.of("usr", "var").toAbsolutePath()}${System.lineSeparator()}" || Path.of("usr", "var").toAbsolutePath()
+        "\"/////\\//\\\0--...fd\"***\"" | "${Path.of("usr", "var")}${System.lineSeparator()}"                  || Path.of("usr", "var")
     }
 
     def "prompt for string with answer of \"#input\", expecting \"#expected\""() {
