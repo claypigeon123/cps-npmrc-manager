@@ -1,3 +1,5 @@
+def version
+
 pipeline {
     environment {
         MAILTO_ON_FAIL     = "n.zoltan18@gmail.com"
@@ -27,13 +29,25 @@ pipeline {
             steps {
                 deleteDir()
                 checkout scm
+                script {
+                    version = readMavenPom(file: "${env.ROOT}/pom.xml").getVersion()
+                }
             }
         }
 
         stage ('mvn clean package') {
             steps {
                 withMaven(maven: env.MVN_TOOL, jdk: env.JDK_TOOL) {
-                    sh "mvn -f ${env.ROOT}/pom.xml clean package"
+                    sh "mvn -Pnative -f ${env.ROOT}/pom.xml clean package"
+                }
+            }
+        }
+
+        stage ('package executable') {
+            steps {
+                script {
+                    def tarName = "${env.NAME}_linux_arm64_${version}.tar.gz"
+                    tar(archive: true, compress: true, defaultExcludes: false, dir: 'target', exclude: '', file: tarName, glob: 'npmrcm', overwrite: false)
                 }
             }
         }
