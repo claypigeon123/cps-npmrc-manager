@@ -90,6 +90,17 @@ pipeline {
                 }
             }
         }
+
+        stage ('nexus deploy') {
+            agent {
+                label 'linux_arm64'
+            }
+            steps {
+                withMaven(maven: env.MVN_TOOL, jdk: env.JDK_TOOL_ARM64) {
+                    sh "mvn -DskipTests=true -Dalt.build.dir=\"target_linux_arm64\" -f ${env.ROOT}/pom.xml deploy"
+                }
+            }
+        }
     }
 
     post {
