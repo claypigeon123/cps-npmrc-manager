@@ -12,6 +12,10 @@ pipeline {
         MVN_TOOL           = "maven-3.9.4"
     }
 
+    agent {
+        label 'controller'
+    }
+
     //triggers {
         //pollSCM "H/15 * * * *"
     //}
