@@ -4,7 +4,7 @@ pipeline {
     environment {
         MAILTO_ON_FAIL     = "n.zoltan18@gmail.com"
 
-        NAME               = "cps-npmrcm-manager"
+        NAME               = "cps-npmrc-manager"
         ROOT               = "."
 
         JDK_TOOL_ARM64     = "graalvm-17"
