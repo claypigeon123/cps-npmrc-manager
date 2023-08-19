@@ -1,8 +1,8 @@
 package com.cps.cli.npmrcmanager.api.impl;
 
 import com.cps.cli.npmrcmanager.api.Api;
-import com.cps.cli.npmrcmanager.model.Configuration;
 import com.cps.cli.npmrcmanager.model.NpmrcProfile;
+import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration;
 import com.cps.cli.npmrcmanager.service.configuration.ConfigurationService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class ListApi extends Api {
     @Option(names = {"-v", "--verbose"}, description = "Prints additional information about profiles", defaultValue = "false")
     private boolean verbose;
 
-    private Configuration configuration;
+    private NpmrcmConfiguration configuration;
 
     @Override
     protected void initialize() {

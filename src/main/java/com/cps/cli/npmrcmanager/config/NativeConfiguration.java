@@ -1,10 +1,11 @@
 package com.cps.cli.npmrcmanager.config;
 
-import com.cps.cli.npmrcmanager.model.Configuration;
 import com.cps.cli.npmrcmanager.model.NpmrcProfile;
+import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
+import org.springframework.context.annotation.Configuration;
 
-@org.springframework.context.annotation.Configuration
-@RegisterReflectionForBinding({ Configuration.class, NpmrcProfile.class })
+@Configuration
+@RegisterReflectionForBinding({ NpmrcmConfiguration.class, NpmrcProfile.class })
 public class NativeConfiguration {
 }

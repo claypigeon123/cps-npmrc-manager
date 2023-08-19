@@ -3,14 +3,12 @@ package com.cps.cli.npmrcmanager.service.npmrc.impl;
 import com.cps.cli.npmrcmanager.model.NpmrcProfile;
 import com.cps.cli.npmrcmanager.service.input.UserInputService;
 import com.cps.cli.npmrcmanager.service.npmrc.NpmrcService;
+import com.cps.cli.npmrcmanager.util.FilesystemHelper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +16,9 @@ public class FilesystemNpmrcService implements NpmrcService {
 
     @NonNull
     private final UserInputService userInputService;
+
+    @NonNull
+    private final FilesystemHelper filesystemHelper;
 
     @Override
     public NpmrcProfile recordExistingNpmrcIntoProfile(@NonNull String npmrcLocation, @NonNull String profilesLocation) {
@@ -32,7 +33,7 @@ public class FilesystemNpmrcService implements NpmrcService {
             .path(profileLocation.toString())
             .build();
 
-        copy(Path.of(npmrcLocation), Path.of(profile.path()));
+        filesystemHelper.copy(Path.of(npmrcLocation).toAbsolutePath(), Path.of(profile.path()).toAbsolutePath());
 
         return profile;
     }
@@ -42,11 +43,9 @@ public class FilesystemNpmrcService implements NpmrcService {
         System.out.println("No existing .npmrc file has been detected!");
         System.out.println("Creating default .npmrc pointing to npm central registry...");
 
-        try (PrintWriter pw = new PrintWriter(new BufferedOutputStream(new FileOutputStream(npmrcLocation)))) {
-            pw.println("registry=https://registry.npmjs.org/");
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Error writing to .npmrc file: " + e.getMessage(), e);
-        }
+        Path npmrcPath = Path.of(npmrcLocation).toAbsolutePath();
+
+        filesystemHelper.write(npmrcPath, "registry=https://registry.npmjs.org/");
 
         String profileName = "npm-central";
         Path profileLocation = Path.of(profilesLocation, profileName).toAbsolutePath();
@@ -56,23 +55,13 @@ public class FilesystemNpmrcService implements NpmrcService {
             .path(profileLocation.toString())
             .build();
 
-        copy(Path.of(npmrcLocation), Path.of(profile.path()));
+        filesystemHelper.copy(npmrcPath, Path.of(profile.path()));
 
         return profile;
     }
 
     @Override
-    public void switchToProfile( @NonNull String npmrcLocation, @NonNull NpmrcProfile profile) {
-        copy(Path.of(profile.path()), Path.of(npmrcLocation));
-    }
-
-    // --
-
-    private void copy(Path source, Path target) {
-        try {
-            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new RuntimeException("Error copying [" + source + "] to [" + target + "]: " + e.getMessage(), e);
-        }
+    public void switchToProfile(@NonNull String npmrcLocation, @NonNull NpmrcProfile profile) {
+        filesystemHelper.copy(Path.of(profile.path()).toAbsolutePath(), Path.of(npmrcLocation).toAbsolutePath());
     }
 }

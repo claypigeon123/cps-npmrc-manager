@@ -1,8 +1,8 @@
 package com.cps.cli.npmrcmanager.api.impl;
 
 import com.cps.cli.npmrcmanager.api.Api;
-import com.cps.cli.npmrcmanager.model.Configuration;
 import com.cps.cli.npmrcmanager.model.NpmrcProfile;
+import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration;
 import com.cps.cli.npmrcmanager.service.configuration.ConfigurationService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class ActiveApi extends Api {
     @Option(names = {"-v", "--verbose"}, description = "Prints additional information about the active profile", defaultValue = "false")
     private boolean verbose;
 
-    private Configuration configuration;
+    private NpmrcmConfiguration configuration;
 
     @Override
     protected void initialize() {
@@ -33,7 +33,7 @@ public class ActiveApi extends Api {
         System.out.printf("Active profile:%n");
 
         NpmrcProfile profile = configuration.getProfiles().stream()
-            .filter(p -> configuration.getActiveProfile().equals(p.name()))
+            .filter(p -> p.name().equals(configuration.getActiveProfile()))
             .findAny()
             .orElseThrow(() -> new IllegalStateException("Illegal state in config. Fix your config or re-run setup."));
 

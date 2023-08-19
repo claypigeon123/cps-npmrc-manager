@@ -1,8 +1,8 @@
 package com.cps.cli.npmrcmanager.api.impl;
 
 import com.cps.cli.npmrcmanager.api.Api;
-import com.cps.cli.npmrcmanager.model.Configuration;
 import com.cps.cli.npmrcmanager.model.NpmrcProfile;
+import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration;
 import com.cps.cli.npmrcmanager.service.configuration.ConfigurationService;
 import com.cps.cli.npmrcmanager.service.npmrc.NpmrcService;
 import lombok.NonNull;
@@ -27,7 +27,7 @@ public class SwitchApi extends Api {
     @Parameters(index = "0", paramLabel = "<target profile>", description = "The configured .npmrc config to switch to")
     private String targetProfileName;
 
-    private Configuration configuration;
+    private NpmrcmConfiguration configuration;
 
     @Override
     protected void initialize() {

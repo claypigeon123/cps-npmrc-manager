@@ -16,13 +16,13 @@ import java.util.List;
 @Reflective // for native usage
 @NoArgsConstructor
 @AllArgsConstructor
-public class Configuration implements Serializable {
+public class NpmrcmConfiguration implements Serializable {
 
     private String npmrcPath;
 
     @JsonIgnore
-    private String activeProfile;
+    private transient String activeProfile;
 
     @JsonIgnore
-    private List<NpmrcProfile> profiles = new ArrayList<>();
+    private transient List<NpmrcProfile> profiles = new ArrayList<>();
 }

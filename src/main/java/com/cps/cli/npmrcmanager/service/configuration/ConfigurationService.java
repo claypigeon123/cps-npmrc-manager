@@ -1,16 +1,16 @@
 package com.cps.cli.npmrcmanager.service.configuration;
 
-import com.cps.cli.npmrcmanager.model.Configuration;
+import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration;
 import lombok.NonNull;
 
 public interface ConfigurationService {
     void setup();
 
-    Configuration load();
+    NpmrcmConfiguration load();
 
     boolean exists();
 
-    void save(@NonNull Configuration configuration);
+    void save(@NonNull NpmrcmConfiguration configuration);
 
     void remove();
 }

@@ -1,19 +1,19 @@
 package com.cps.cli.npmrcmanager.service.configuration.impl;
 
-import com.cps.cli.npmrcmanager.model.Configuration;
 import com.cps.cli.npmrcmanager.model.NpmrcProfile;
+import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration;
 import com.cps.cli.npmrcmanager.service.configuration.ConfigurationService;
 import com.cps.cli.npmrcmanager.service.input.UserInputService;
 import com.cps.cli.npmrcmanager.service.npmrc.NpmrcService;
+import com.cps.cli.npmrcmanager.util.FilesystemHelper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +22,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class FilesystemConfigurationService implements ConfigurationService {
-
-    private static final Path DEFAULT_NPMRC_PATH = Path.of(System.getProperty("user.home"), ".npmrc");
-
-    private static final Path CONFIG_FOLDER = Path.of(System.getProperty("user.home"), ".npmrcm");
-    private static final Path PROFILES_FOLDER = CONFIG_FOLDER.resolve("profiles");
-    private static final Path CONFIG_FILE_PATH = CONFIG_FOLDER.resolve("config.json");
 
     @NonNull
     private final ObjectMapper objectMapper;
@@ -38,17 +32,21 @@ public class FilesystemConfigurationService implements ConfigurationService {
     @NonNull
     private final NpmrcService npmrcService;
 
+    @NonNull
+    private final FilesystemHelper filesystemHelper;
+
     @Override
     public void setup() {
-        Path npmrcPath = userInputService.promptForPath("Enter path to active npmrc file", DEFAULT_NPMRC_PATH);
+        Path npmrcPath = userInputService.promptForPath("Enter path to active npmrc file", filesystemHelper.getDefaultNpmrcPath());
 
-        File npmrcFile = new File(npmrcPath.toUri());
+        boolean npmrcExists = filesystemHelper.exists(npmrcPath, false);
+        String profilesFolderLocation = filesystemHelper.getProfilesFolder().toAbsolutePath().toString();
 
-        NpmrcProfile profile = (npmrcFile.exists() && npmrcFile.isFile())
-            ? npmrcService.recordExistingNpmrcIntoProfile(npmrcFile.getAbsolutePath(), PROFILES_FOLDER.toAbsolutePath().toString())
-            : npmrcService.recordNewNpmrcForCentralRegistryIntoProfile(npmrcFile.getAbsolutePath(), PROFILES_FOLDER.toAbsolutePath().toString());
+        NpmrcProfile profile = npmrcExists
+            ? npmrcService.recordExistingNpmrcIntoProfile(npmrcPath.toString(), profilesFolderLocation)
+            : npmrcService.recordNewNpmrcForCentralRegistryIntoProfile(npmrcPath.toString(), profilesFolderLocation);
 
-        Configuration configuration = Configuration.builder()
+        NpmrcmConfiguration configuration = NpmrcmConfiguration.builder()
             .npmrcPath(npmrcPath.toAbsolutePath().toString())
             .profiles(new ArrayList<>(List.of(profile)))
             .activeProfile(profile.name())
@@ -58,53 +56,53 @@ public class FilesystemConfigurationService implements ConfigurationService {
     }
 
     @Override
-    public Configuration load() {
-        File configFile = new File(CONFIG_FILE_PATH.toUri());
-
-        if (!configFile.exists() || configFile.isDirectory()) {
+    public NpmrcmConfiguration load() {
+        Path configJsonFilePath = filesystemHelper.getConfigJsonFilePath();
+        String configFileContents;
+        try {
+            configFileContents = filesystemHelper.read(configJsonFilePath);
+        } catch (UncheckedIOException e) {
             throw new IllegalStateException(String.format(
-                "Config file not found in the location it is supposed to be at: \"%s\"\nSet it up by running \"npmrcm setup\"",
-                configFile.getAbsolutePath()
+                "Config file not found in the location it is supposed to be at: [%s]%nSet it up by running \"npmrcm setup\"",
+                configJsonFilePath
             ));
         }
 
-        Configuration configuration;
-
+        NpmrcmConfiguration configuration;
         try {
-            configuration = objectMapper.readValue(configFile, Configuration.class);
+            configuration = objectMapper.readValue(configFileContents, NpmrcmConfiguration.class);
         } catch (IOException e) {
             throw new IllegalStateException("Error while parsing configuration json file: " + e.getMessage(), e);
         }
 
         Path npmrcPath = Path.of(configuration.getNpmrcPath()).toAbsolutePath();
-        Optional<String> npmrcFileContents;
+        Optional<String> npmrcFileContentsOpt;
         try {
-            npmrcFileContents = Optional.of(Files.readString(npmrcPath));
-        } catch (IOException e) {
+            String npmrcFileContents = filesystemHelper.read(npmrcPath);
+            npmrcFileContentsOpt = Optional.of(npmrcFileContents);
+        } catch (UncheckedIOException e) {
             System.err.printf("Could not parse file contents of .npmrc file at [%s]. Does it exist?%n", npmrcPath);
             System.err.printf("SUGGESTION: Activate a configured profile with \"npmrcm switch <profile name>\" to have it created for you.%n%n");
-            npmrcFileContents = Optional.empty();
+            npmrcFileContentsOpt = Optional.empty();
         }
 
-        File profilesFolder = new File(PROFILES_FOLDER.toUri());
-        File[] profileFiles = profilesFolder.listFiles();
+        List<Path> profilePaths = filesystemHelper.list(filesystemHelper.getProfilesFolder()).toList();
 
-        if (profileFiles == null || profileFiles.length < 1) return configuration;
+        if (profilePaths.isEmpty()) return configuration;
 
-        for (File profileFile : profileFiles) {
-            NpmrcProfile profile = NpmrcProfile.builder()
-                .name(profileFile.getName())
-                .path(profileFile.getAbsolutePath())
-                .build();
-
-            String fileContents;
-            try {
-                fileContents = Files.readString(profileFile.toPath());
-            } catch (IOException e) {
-                throw new RuntimeException("Could not parse file contents of [" + profileFile.getAbsolutePath() + "]: " + e.getMessage(), e);
+        for (Path profilePath : profilePaths) {
+            if (!filesystemHelper.exists(profilePath, false)) {
+                continue;
             }
 
-            if (npmrcFileContents.isPresent() && fileContents.equals(npmrcFileContents.get())) {
+            NpmrcProfile profile = NpmrcProfile.builder()
+                .name(profilePath.getFileName().toString())
+                .path(profilePath.toAbsolutePath().toString())
+                .build();
+
+            String fileContents = filesystemHelper.read(profilePath);
+
+            if (npmrcFileContentsOpt.isPresent() && fileContents.equals(npmrcFileContentsOpt.get())) {
                 configuration.setActiveProfile(profile.name());
             }
 
@@ -116,39 +114,31 @@ public class FilesystemConfigurationService implements ConfigurationService {
 
     @Override
     public boolean exists() {
-        File configFile = new File(CONFIG_FILE_PATH.toUri());
-        return configFile.exists() && configFile.isFile();
+        return filesystemHelper.exists(filesystemHelper.getConfigJsonFilePath(), false);
     }
 
     @Override
-    public void save(@NonNull Configuration configuration) {
-        File configFile = new File(CONFIG_FILE_PATH.toUri());
+    public void save(@NonNull NpmrcmConfiguration configuration) {
+        String content;
 
         try {
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(configFile, configuration);
+            content = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(configuration);
         } catch (IOException e) {
-            throw new IllegalStateException("Error while writing configuration json file: " + e.getMessage(), e);
+            throw new UncheckedIOException("Error while serializing app configuration to json: " + e.getMessage(), e);
         }
+
+        filesystemHelper.write(filesystemHelper.getConfigJsonFilePath(), content);
     }
 
     @Override
     public void remove() {
-        File configFile = new File(CONFIG_FILE_PATH.toUri());
-
-        if (!configFile.exists() || configFile.isDirectory()) return;
-
-        boolean deleteWasSuccess = configFile.delete();
-
-        if (!deleteWasSuccess) {
-            throw new IllegalStateException("Deletion of config file failed");
-        }
+        filesystemHelper.remove(filesystemHelper.getConfigJsonFilePath());
     }
 
     // --
 
     @PostConstruct
-    private void postConstruct() throws IOException {
-        Files.createDirectories(CONFIG_FOLDER);
-        Files.createDirectories(PROFILES_FOLDER);
+    private void postConstruct() {
+        filesystemHelper.createDirs(filesystemHelper.getProfilesFolder());
     }
 }
