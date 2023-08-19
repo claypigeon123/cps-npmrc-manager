@@ -16,9 +16,9 @@ pipeline {
         label 'controller'
     }
 
-    //triggers {
-        //pollSCM "H/15 * * * *"
-    //}
+    triggers {
+        pollSCM "H/15 * * * *"
+    }
 
     options {
         disableConcurrentBuilds()
@@ -31,7 +31,8 @@ pipeline {
                 deleteDir()
                 checkout scm
                 script {
-                    version = readMavenPom(file: "${env.ROOT}/pom.xml").getVersion()
+                    String snapshotVersion = readMavenPom(file: "${env.ROOT}/pom.xml").getVersion()
+                    version = snapshotVersion.split("-SNAPSHOT")[0]
                 }
             }
         }
