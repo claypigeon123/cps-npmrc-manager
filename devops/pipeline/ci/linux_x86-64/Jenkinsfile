@@ -7,12 +7,12 @@ pipeline {
         NAME               = "cps-npmrcm-manager"
         ROOT               = "."
 
-        JDK_TOOL           = "graalvm-17"
+        JDK_TOOL           = "graalvm-17-x64"
         MVN_TOOL           = "maven-3.9.4"
     }
 
     agent {
-        label 'linux_arm64'
+        label 'linux_x86-64'
     }
 
     //triggers {
@@ -46,7 +46,7 @@ pipeline {
         stage ('package executable') {
             steps {
                 script {
-                    def tarName = "${env.NAME}_linux_arm64_${version}.tar.gz"
+                    def tarName = "${env.NAME}_linux_x86-64_${version}.tar.gz"
                     tar(archive: true, compress: true, defaultExcludes: false, dir: "${env.ROOT}/target", exclude: '', file: tarName, glob: 'npmrcm', overwrite: false)
                 }
             }

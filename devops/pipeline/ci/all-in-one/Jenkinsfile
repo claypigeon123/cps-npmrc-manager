@@ -1,0 +1,95 @@
+def version
+
+pipeline {
+    environment {
+        MAILTO_ON_FAIL     = "n.zoltan18@gmail.com"
+
+        NAME               = "cps-npmrcm-manager"
+        ROOT               = "."
+
+        JDK_TOOL_ARM64     = "graalvm-17"
+        JDK_TOOL_x64       = "graalvm-17-x64"
+        MVN_TOOL           = "maven-3.9.4"
+    }
+
+    //triggers {
+        //pollSCM "H/15 * * * *"
+    //}
+
+    options {
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    stages {
+        stage ('preparation') {
+            steps {
+                deleteDir()
+                checkout scm
+                script {
+                    version = readMavenPom(file: "${env.ROOT}/pom.xml").getVersion()
+                }
+            }
+        }
+
+        stage ('mvn clean package') {
+            parallel {
+                stage ('linux x86-64') {
+                    agent {
+                        label 'linux_x86-64'
+                    }
+                    steps {
+                        withMaven(maven: env.MVN_TOOL, jdk: env.JDK_TOOL_x64) {
+                            sh "mvn -Pnative -Dalt.build.dir=\"target_linux_x86-64\" -f ${env.ROOT}/pom.xml clean package"
+                        }
+                    }
+                }
+
+                stage ('linux arm64') {
+                    agent {
+                        label 'linux_arm64'
+                    }
+                    steps {
+                        withMaven(maven: env.MVN_TOOL, jdk: env.JDK_TOOL_ARM64) {
+                            sh "mvn -Pnative -Dalt.build.dir=\"target_linux_arm64\" -f ${env.ROOT}/pom.xml clean package"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage ('package executable') {
+            parallel {
+                stage ('linux x86-64') {
+                    agent {
+                        label 'linux_x86-64'
+                    }
+                    steps {
+                        script {
+                            def tarName = "${env.NAME}_linux_x86-64_${version}.tar.gz"
+                            tar(archive: true, compress: true, defaultExcludes: false, dir: "${env.ROOT}/target_linux_x86-64", exclude: '', file: tarName, glob: 'npmrcm', overwrite: false)
+                        }
+                    }
+                }
+
+                stage ('linux arm64') {
+                    agent {
+                        label 'linux_arm64'
+                    }
+                    steps {
+                        script {
+                            def tarName = "${env.NAME}_linux_arm64_${version}.tar.gz"
+                            tar(archive: true, compress: true, defaultExcludes: false, dir: "${env.ROOT}/target_linux_arm64", exclude: '', file: tarName, glob: 'npmrcm', overwrite: false)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            emailext(to: "${env.MAILTO_ON_FAIL}", subject: '$DEFAULT_SUBJECT', body: '$DEFAULT_CONTENT')
+        }
+    }
+}

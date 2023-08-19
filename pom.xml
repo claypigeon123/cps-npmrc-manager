@@ -197,5 +197,16 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>alt-build-dir</id>
+            <activation>
+                <property>
+                    <name>alt.build.dir</name>
+                </property>
+            </activation>
+            <build>
+                <directory>${alt.build.dir}</directory>
+            </build>
+        </profile>
     </profiles>
 </project>
