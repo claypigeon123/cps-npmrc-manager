@@ -54,6 +54,6 @@ public class SwitchApi extends Api {
 
         npmrcService.switchToProfile(configuration.getNpmrcPath(), targetProfile);
 
-        System.out.printf("Switched to profile [%s]", targetProfile.name());
+        System.out.printf("Switched to profile [%s]%n", targetProfile.name());
     }
 }

@@ -37,7 +37,7 @@ pipeline {
             }
         }
 
-        stage ('mvn clean package') {
+        stage ('maven build') {
             parallel {
                 stage ('linux x86-64') {
                     agent {
@@ -63,7 +63,7 @@ pipeline {
             }
         }
 
-        stage ('package executable') {
+        stage ('package executables') {
             parallel {
                 stage ('linux x86-64') {
                     agent {

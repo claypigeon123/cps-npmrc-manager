@@ -32,7 +32,7 @@ pipeline {
             }
         }
 
-        stage ('mvn clean package') {
+        stage ('maven build') {
             steps {
                 withMaven(maven: env.MVN_TOOL, jdk: env.JDK_TOOL) {
                     sh "mvn -Pnative -f ${env.ROOT}/pom.xml clean package"

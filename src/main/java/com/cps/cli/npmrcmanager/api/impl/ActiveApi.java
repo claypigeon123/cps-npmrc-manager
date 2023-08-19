@@ -30,8 +30,6 @@ public class ActiveApi extends Api {
 
     @Override
     protected void start() {
-        System.out.printf("Active profile:%n");
-
         NpmrcProfile profile = configuration.getProfiles().stream()
             .filter(p -> p.name().equals(configuration.getActiveProfile()))
             .findAny()
@@ -44,11 +42,11 @@ public class ActiveApi extends Api {
 
     private void printProfile(NpmrcProfile profile, boolean verbose) {
         if (!verbose) {
-            System.out.printf("[%s]%n", profile.name());
+            System.out.printf("%s%n", profile.name());
             return;
         }
 
-        System.out.printf("%n");
+        System.out.printf("Active profile: %n%n");
         System.out.printf("# profile name:         %s%n", profile.name());
         System.out.printf("# persistent path:      %s%n", profile.path());
     }

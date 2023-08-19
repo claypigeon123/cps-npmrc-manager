@@ -21,6 +21,8 @@ public class SetupApi extends Api {
 
     @Override
     protected void initialize() {
+        System.out.printf("Initializing guided setup%n");
+
         boolean configExists = configurationService.exists();
         if (!configExists) return;
 
@@ -31,7 +33,7 @@ public class SetupApi extends Api {
     @Override
     protected void start() {
         System.out.printf("Starting guided setup%n");
-        System.out.printf("Some answers have defaults in [square brackets] - just press enter to accept these as is.%n%n");
+        System.out.printf("Some answers have defaults in [square brackets] - just press enter to accept these as is.%n");
 
         configurationService.setup();
 

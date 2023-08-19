@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 @Command(name = "list", description = "-> List configured .npmrc profiles", mixinStandardHelpOptions = true)
@@ -30,20 +32,22 @@ public class ListApi extends Api {
 
     @Override
     protected void start() {
-        System.out.printf("Listing .npmrc profiles%s:%n", verbose ? "" : " (use -v or --verbose flags for additional information)");
-
-        String activeProfileName = configuration.getActiveProfile();
-
-        configuration.getProfiles().forEach(profile -> printProfile(profile, activeProfileName, verbose));
+        printProfiles(configuration.getProfiles());
     }
 
     // --
 
-    private void printProfile(NpmrcProfile profile, String activeProfileName, boolean verbose) {
-        boolean isActive = profile.name().equals(activeProfileName);
+    private void printProfiles(List<NpmrcProfile> profiles) {
+        String activeProfileName = configuration.getActiveProfile();
 
+        if (verbose) System.out.printf("Listing .npmrc profiles:%n");
+
+        profiles.forEach(profile -> printProfile(profile, profile.name().equals(activeProfileName)));
+    }
+
+    private void printProfile(NpmrcProfile profile, boolean isActive) {
         if (!verbose) {
-            System.out.printf("%n%s%s", isActive ? "---> " : "     ", profile.name());
+            System.out.printf("%s%s%n", isActive ? "---> " : "     ", profile.name());
             return;
         }
 
