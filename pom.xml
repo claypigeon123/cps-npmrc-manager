@@ -29,6 +29,13 @@
         <surefire.version>3.1.2</surefire.version>
     </properties>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>pigeon-nexus-snapshots</id>
+            <url>https://build.cp-sys.hu/nexus/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
