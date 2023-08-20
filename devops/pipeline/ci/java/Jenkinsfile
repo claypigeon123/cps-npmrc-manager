@@ -40,7 +40,7 @@ pipeline {
 
         stage ('maven deploy') {
             steps {
-                withMaven(maven: env.MVN_TOOL, jdk: env.JDK_TOOL) {
+                withMaven(maven: env.MVN_TOOL, jdk: env.JDK_TOOL, options: [junitPublisher(disabled: true)]) {
                     sh "mvn deploy -Dmaven.test.skip=true -DskipTests=true -f ${env.ROOT}/pom.xml"
                 }
             }
