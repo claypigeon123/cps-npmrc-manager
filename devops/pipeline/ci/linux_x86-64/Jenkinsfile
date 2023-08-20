@@ -1,0 +1,69 @@
+def version
+
+pipeline {
+    environment {
+        MAILTO_ON_FAIL     = "n.zoltan18@gmail.com"
+
+        NAME               = "cps-npmrc-manager"
+        ROOT               = "."
+        BUILD_ARCH         = "linux_x86-64"
+
+        NEXUS_URL          = "https://build.cp-sys.hu/nexus/repository/executable-releases"
+        NEXUS_CREDENTIALS  = "pigeon-nexus"
+
+        JDK_TOOL           = "graalvm-17-x64"
+        MVN_TOOL           = "maven-3.9.4"
+    }
+
+    agent {
+        label 'linux_x86-64'
+    }
+
+    triggers {
+        upstream 'cps-npmrc-manager/ci/java'
+    }
+
+    options {
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    stages {
+        stage ('preparation') {
+            steps {
+                deleteDir()
+                checkout scm
+                script {
+                    String snapshotVersion = readMavenPom(file: "${env.ROOT}/pom.xml").getVersion()
+                    version = snapshotVersion.split("-SNAPSHOT")[0]
+                }
+            }
+        }
+
+        stage ('maven build') {
+            steps {
+                withMaven(maven: env.MVN_TOOL, jdk: env.JDK_TOOL) {
+                    sh "mvn clean package -DskipTests=true -Pnative -f ${env.ROOT}/pom.xml"
+                }
+            }
+        }
+
+        stage ('publish executable') {
+            steps {
+                withCredentials([usernameColonPassword(credentialsId: "${env.NEXUS_CREDENTIALS}", variable: 'NEXUS_USERPASS')]) {
+                    script {
+                        def tarName = "${env.NAME}_${env.BUILD_ARCH}_${version}.tar.gz"
+                        tar(archive: true, compress: true, defaultExcludes: false, dir: "${env.ROOT}/target", exclude: '', file: tarName, glob: 'npmrcm', overwrite: true)
+                        sh "curl -v" + ' --user $NEXUS_USERPASS' + " --upload-file ./$tarName ${env.NEXUS_URL}/${env.NAME}/${env.BUILD_ARCH}/$version/$tarName"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            emailext(to: "${env.MAILTO_ON_FAIL}", subject: '$DEFAULT_SUBJECT', body: '$DEFAULT_CONTENT')
+        }
+    }
+}

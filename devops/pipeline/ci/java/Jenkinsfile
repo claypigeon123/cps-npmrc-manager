@@ -1,0 +1,49 @@
+pipeline {
+    environment {
+        MAILTO_ON_FAIL     = "n.zoltan18@gmail.com"
+
+        NAME               = "cps-npmrc-manager"
+        ROOT               = "."
+
+        JDK_TOOL           = "jdk-17"
+        MVN_TOOL           = "maven-3.9.4"
+    }
+
+    agent {
+        label 'controller'
+    }
+
+    triggers {
+        pollSCM "H/15 * * * *"
+    }
+
+    options {
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    stages {
+        stage ('preparation') {
+            steps {
+                deleteDir()
+                checkout scm
+            }
+        }
+
+        stage ('maven build') {
+            steps {
+                withMaven(maven: env.MVN_TOOL, jdk: env.JDK_TOOL) {
+                    sh "mvn clean package -f ${env.ROOT}/pom.xml"
+                }
+            }
+        }
+
+        stage ('maven deploy') {
+            steps {
+                withMaven(maven: env.MVN_TOOL, jdk: env.JDK_TOOL) {
+                    sh "mvn deploy -DskipTests=true -f ${env.ROOT}/pom.xml"
+                }
+            }
+        }
+    }
+}
