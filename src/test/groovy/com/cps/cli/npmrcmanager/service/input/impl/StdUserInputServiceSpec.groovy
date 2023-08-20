@@ -2,29 +2,17 @@ package com.cps.cli.npmrcmanager.service.input.impl
 
 import com.cps.cli.npmrcmanager.service.input.UserInputService
 import spock.lang.Specification
+import spock.util.environment.RestoreSystemProperties
 
 import java.nio.file.Path
 
 import static java.lang.String.format
 
+@RestoreSystemProperties
 class StdUserInputServiceSpec extends Specification {
-
-    // save std in & out
-    InputStream stdIn
-    PrintStream stdOut
 
     // tested class
     UserInputService userInputService
-
-    void setup() {
-        stdIn = System.in
-        stdOut = System.out
-    }
-
-    void cleanup() {
-        System.setIn(stdIn)
-        System.setOut(stdOut)
-    }
 
     def "prompt for yes or no with answer of #input, expecting #expected"() {
         given:
