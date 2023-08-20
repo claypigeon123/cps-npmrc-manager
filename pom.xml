@@ -11,7 +11,7 @@
 
     <groupId>com.cps.cli</groupId>
     <artifactId>cps-npmrc-manager</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <properties>
         <!-- BASIC META -->
@@ -24,7 +24,6 @@
         <objenesis.version>3.3</objenesis.version>
 
         <!-- PLUGIN VERSIONING -->
-        <appassembler.version>2.1.0</appassembler.version>
         <gmavenplus.version>3.0.0</gmavenplus.version>
         <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
     </properties>
