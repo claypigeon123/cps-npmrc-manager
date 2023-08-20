@@ -5,6 +5,7 @@ import com.cps.cli.npmrcmanager.model.NpmrcProfile;
 import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration;
 import com.cps.cli.npmrcmanager.service.configuration.ConfigurationService;
 import com.cps.cli.npmrcmanager.service.npmrc.NpmrcService;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Command(name = "switch", description = "-> Switch to the specified .npmrc profile", mixinStandardHelpOptions = true)
 public class SwitchApi extends Api {
 
