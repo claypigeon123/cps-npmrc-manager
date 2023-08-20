@@ -5,6 +5,8 @@ import spock.lang.Specification
 
 import java.nio.file.Path
 
+import static java.lang.String.format
+
 class StdUserInputServiceSpec extends Specification {
 
     // save std in & out
@@ -43,7 +45,7 @@ class StdUserInputServiceSpec extends Specification {
 
         then:
         noExceptionThrown()
-        new String(baos.toByteArray()) == String.format("%nDo you like tea? (Y/N): %n")
+        new String(baos.toByteArray()) == format("%nDo you like tea? (Y/N): %n")
         result == expected
 
         where:
@@ -74,7 +76,7 @@ class StdUserInputServiceSpec extends Specification {
 
         then:
         noExceptionThrown()
-        new String(baos.toByteArray()) == String.format("%nWhere is your favourite beverage? [%s]: %n", defaultValue)
+        new String(baos.toByteArray()) == format("%nWhere is your favourite beverage? [%s]: %n", defaultValue)
         result == expected
 
         where:
@@ -105,8 +107,8 @@ class StdUserInputServiceSpec extends Specification {
 
         then:
         noExceptionThrown()
-        def oneExpectedLine = String.format("Where is your favourite beverage? [%s]: %n", defaultValue)
-        new String(baos.toByteArray()) == String.format("%n%s%s", oneExpectedLine, oneExpectedLine)
+        def oneExpectedLine = format("Where is your favourite beverage? [%s]: %n", defaultValue)
+        new String(baos.toByteArray()) == format("%n%s%s", oneExpectedLine, oneExpectedLine)
         result == expected
 
         where:
@@ -136,7 +138,7 @@ class StdUserInputServiceSpec extends Specification {
 
         then:
         noExceptionThrown()
-        new String(baos.toByteArray()) == String.format("%nWhat is your favourite beverage? [%s]: %n", defaultValue)
+        new String(baos.toByteArray()) == format("%nWhat is your favourite beverage? [%s]: %n", defaultValue)
         result == expected
 
         where:

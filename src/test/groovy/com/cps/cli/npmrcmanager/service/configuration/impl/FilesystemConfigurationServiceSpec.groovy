@@ -1,6 +1,5 @@
 package com.cps.cli.npmrcmanager.service.configuration.impl
 
-
 import com.cps.cli.npmrcmanager.model.NpmrcProfile
 import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration
 import com.cps.cli.npmrcmanager.service.configuration.ConfigurationService
@@ -13,6 +12,8 @@ import spock.lang.Specification
 
 import java.nio.file.Path
 import java.util.stream.Stream
+
+import static java.lang.String.format
 
 class FilesystemConfigurationServiceSpec extends Specification {
 
@@ -110,7 +111,7 @@ class FilesystemConfigurationServiceSpec extends Specification {
             .path(APP_PROFILES_FOLDER_PATH.resolve("custom-profile").toAbsolutePath().toString())
             .active(false)
             .build()
-        String customProfileContents = String.format("registry=https://some-other-reg.localhost/%n//some-other-reg.localhost/:_auth=asdf")
+        String customProfileContents = format("registry=https://some-other-reg.localhost/%n//some-other-reg.localhost/:_auth=asdf")
 
         when:
         NpmrcmConfiguration result = configurationService.load()
@@ -182,7 +183,7 @@ class FilesystemConfigurationServiceSpec extends Specification {
             .path(APP_PROFILES_FOLDER_PATH.resolve("custom-profile").toAbsolutePath().toString())
             .active(false)
             .build()
-        String customProfileContents = String.format("registry=https://some-other-reg.localhost/%n//some-other-reg.localhost/:_auth=asdf")
+        String customProfileContents = format("registry=https://some-other-reg.localhost/%n//some-other-reg.localhost/:_auth=asdf")
 
         when:
         NpmrcmConfiguration result = configurationService.load()
@@ -261,7 +262,7 @@ class FilesystemConfigurationServiceSpec extends Specification {
                     .build()
             ])
             .build()
-        String serializedContent = String.format("{%n  \"npmrcPath\" : \"/home/user/.npmrc\"%n}")
+        String serializedContent = format("{%n  \"npmrcPath\" : \"/home/user/.npmrc\"%n}")
 
         when:
         configurationService.save(configuration)

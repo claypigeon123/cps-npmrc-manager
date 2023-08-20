@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static java.lang.String.format;
+
 @Service
 @RequiredArgsConstructor
 public class FilesystemNpmrcService implements NpmrcService {
@@ -71,7 +73,7 @@ public class FilesystemNpmrcService implements NpmrcService {
             .findAny();
 
         if (targetProfileOpt.isEmpty()) {
-            throw new IllegalStateException(String.format(
+            throw new IllegalStateException(format(
                 "Target profile [%s] does not exist.%nSUGGESTION: List available profiles with \"npmrcm list\" or \"npmrcm list --verbose\"",
                 targetProfileName
             ));
@@ -80,7 +82,7 @@ public class FilesystemNpmrcService implements NpmrcService {
         NpmrcProfile targetProfile = targetProfileOpt.get();
 
         if (targetProfile.active()) {
-            throw new IllegalStateException(String.format("Profile [%s] is already active", targetProfile.name()));
+            throw new IllegalStateException(format("Profile [%s] is already active", targetProfile.name()));
         }
 
         filesystemHelper.copy(Path.of(targetProfile.path()).toAbsolutePath(), Path.of(configuration.getNpmrcPath()).toAbsolutePath());
