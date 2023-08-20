@@ -7,5 +7,5 @@ import java.io.Serializable;
 
 @Builder
 @Reflective // for native usage
-public record NpmrcProfile (String name, String path) implements Serializable {
+public record NpmrcProfile (String name, String path, boolean active) implements Serializable {
 }

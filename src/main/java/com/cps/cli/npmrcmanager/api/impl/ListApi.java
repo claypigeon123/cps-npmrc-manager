@@ -40,22 +40,20 @@ public class ListApi extends Api {
     // --
 
     private void printProfiles(List<NpmrcProfile> profiles) {
-        String activeProfileName = configuration.getActiveProfile();
-
         if (verbose) System.out.printf("Listing .npmrc profiles:%n");
 
-        profiles.forEach(profile -> printProfile(profile, profile.name().equals(activeProfileName)));
+        profiles.forEach(this::printProfile);
     }
 
-    private void printProfile(NpmrcProfile profile, boolean isActive) {
+    private void printProfile(NpmrcProfile profile) {
         if (!verbose) {
-            System.out.printf("%s%s%n", isActive ? "---> " : "     ", profile.name());
+            System.out.printf("%s%s%n", profile.active() ? "---> " : "     ", profile.name());
             return;
         }
 
         System.out.printf("%n");
         System.out.printf("# profile name:         %s%n", profile.name());
         System.out.printf("# persistent path:      %s%n", profile.path());
-        System.out.printf("# active?               %s%n", isActive ? "yes" : "no");
+        System.out.printf("# active?               %s%n", profile.active() ? "yes" : "no");
     }
 }

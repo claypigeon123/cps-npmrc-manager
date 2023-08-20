@@ -1,6 +1,7 @@
 package com.cps.cli.npmrcmanager.service.npmrc.impl;
 
 import com.cps.cli.npmrcmanager.model.NpmrcProfile;
+import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration;
 import com.cps.cli.npmrcmanager.service.input.UserInputService;
 import com.cps.cli.npmrcmanager.service.npmrc.NpmrcService;
 import com.cps.cli.npmrcmanager.util.FilesystemHelper;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public class FilesystemNpmrcService implements NpmrcService {
         NpmrcProfile profile = NpmrcProfile.builder()
             .name(currentNpmrcName)
             .path(profileLocation.toString())
+            .active(true)
             .build();
 
         filesystemHelper.copy(Path.of(npmrcLocation).toAbsolutePath(), Path.of(profile.path()).toAbsolutePath());
@@ -53,6 +56,7 @@ public class FilesystemNpmrcService implements NpmrcService {
         NpmrcProfile profile = NpmrcProfile.builder()
             .name(profileName)
             .path(profileLocation.toString())
+            .active(true)
             .build();
 
         filesystemHelper.copy(npmrcPath, Path.of(profile.path()));
@@ -61,7 +65,24 @@ public class FilesystemNpmrcService implements NpmrcService {
     }
 
     @Override
-    public void switchToProfile(@NonNull String npmrcLocation, @NonNull NpmrcProfile profile) {
-        filesystemHelper.copy(Path.of(profile.path()).toAbsolutePath(), Path.of(npmrcLocation).toAbsolutePath());
+    public void switchToProfile(@NonNull NpmrcmConfiguration configuration, @NonNull String targetProfileName) {
+        Optional<NpmrcProfile> targetProfileOpt = configuration.getProfiles().stream()
+            .filter(p -> targetProfileName.equals(p.name()))
+            .findAny();
+
+        if (targetProfileOpt.isEmpty()) {
+            throw new IllegalStateException(String.format(
+                "Target profile [%s] does not exist.%nSUGGESTION: List available profiles with \"npmrcm list\" or \"npmrcm list --verbose\"",
+                targetProfileName
+            ));
+        }
+
+        NpmrcProfile targetProfile = targetProfileOpt.get();
+
+        if (targetProfile.active()) {
+            throw new IllegalStateException(String.format("Profile [%s] is already active", targetProfile.name()));
+        }
+
+        filesystemHelper.copy(Path.of(targetProfile.path()).toAbsolutePath(), Path.of(configuration.getNpmrcPath()).toAbsolutePath());
     }
 }

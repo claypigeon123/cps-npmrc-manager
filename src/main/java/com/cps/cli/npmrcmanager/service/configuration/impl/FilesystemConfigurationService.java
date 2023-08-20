@@ -49,7 +49,6 @@ public class FilesystemConfigurationService implements ConfigurationService {
         NpmrcmConfiguration configuration = NpmrcmConfiguration.builder()
             .npmrcPath(npmrcPath.toAbsolutePath().toString())
             .profiles(new ArrayList<>(List.of(profile)))
-            .activeProfile(profile.name())
             .build();
 
         save(configuration);
@@ -95,16 +94,14 @@ public class FilesystemConfigurationService implements ConfigurationService {
                 continue;
             }
 
+            String fileContents = filesystemHelper.read(profilePath);
+            boolean active = npmrcFileContentsOpt.isPresent() && fileContents.equals(npmrcFileContentsOpt.get());
+
             NpmrcProfile profile = NpmrcProfile.builder()
                 .name(profilePath.getFileName().toString())
                 .path(profilePath.toAbsolutePath().toString())
+                .active(active)
                 .build();
-
-            String fileContents = filesystemHelper.read(profilePath);
-
-            if (npmrcFileContentsOpt.isPresent() && fileContents.equals(npmrcFileContentsOpt.get())) {
-                configuration.setActiveProfile(profile.name());
-            }
 
             configuration.getProfiles().add(profile);
         }

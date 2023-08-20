@@ -9,7 +9,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -20,9 +21,6 @@ public class ActiveApi extends Api {
     @NonNull
     private final ConfigurationService configurationService;
 
-    @Option(names = {"-v", "--verbose"}, description = "Prints additional information about the active profile", defaultValue = "false")
-    private boolean verbose;
-
     private NpmrcmConfiguration configuration;
 
     @Override
@@ -32,24 +30,11 @@ public class ActiveApi extends Api {
 
     @Override
     protected void start() {
-        NpmrcProfile profile = configuration.getProfiles().stream()
-            .filter(p -> p.name().equals(configuration.getActiveProfile()))
-            .findAny()
-            .orElseThrow(() -> new IllegalStateException("Illegal state in config. Fix your config or re-run setup."));
+        String profiles = configuration.getProfiles().stream()
+            .filter(NpmrcProfile::active)
+            .map(NpmrcProfile::name)
+            .collect(Collectors.joining(", "));
 
-        printProfile(profile, verbose);
-    }
-
-    // --
-
-    private void printProfile(NpmrcProfile profile, boolean verbose) {
-        if (!verbose) {
-            System.out.printf("%s%n", profile.name());
-            return;
-        }
-
-        System.out.printf("Active profile: %n%n");
-        System.out.printf("# profile name:         %s%n", profile.name());
-        System.out.printf("# persistent path:      %s%n", profile.path());
+        System.out.printf("%s%n", profiles);
     }
 }

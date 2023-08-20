@@ -44,11 +44,10 @@ class FilesystemConfigurationServiceSpec extends Specification {
 
     def "setup config with existing npmrc: [#existingNpmrc]"() {
         given:
-        NpmrcProfile profile = new NpmrcProfile("npm-central", APP_PROFILES_FOLDER_PATH.resolve("npm-central").toAbsolutePath().toString())
+        NpmrcProfile profile = new NpmrcProfile("npm-central", APP_PROFILES_FOLDER_PATH.resolve("npm-central").toAbsolutePath().toString(), true)
         NpmrcmConfiguration expectedConfig = NpmrcmConfiguration.builder()
             .npmrcPath(DEFAULT_NPMRC_PATH.toAbsolutePath().toString())
             .profiles([profile])
-            .activeProfile(profile.name())
             .build()
 
         when:
@@ -103,11 +102,13 @@ class FilesystemConfigurationServiceSpec extends Specification {
         NpmrcProfile npmCentralProfile = NpmrcProfile.builder()
             .name("npm-central")
             .path(APP_PROFILES_FOLDER_PATH.resolve("npm-central").toAbsolutePath().toString())
+            .active(false)
             .build()
         String npmCentralProfileContents = "$npmrcFileContents"
         NpmrcProfile customProfile = NpmrcProfile.builder()
             .name("custom-profile")
             .path(APP_PROFILES_FOLDER_PATH.resolve("custom-profile").toAbsolutePath().toString())
+            .active(false)
             .build()
         String customProfileContents = String.format("registry=https://some-other-reg.localhost/%n//some-other-reg.localhost/:_auth=asdf")
 
@@ -126,7 +127,6 @@ class FilesystemConfigurationServiceSpec extends Specification {
 
         noExceptionThrown()
         result.npmrcPath == DEFAULT_NPMRC_PATH.toAbsolutePath().toString()
-        result.activeProfile == null
         result.profiles == [npmCentralProfile, customProfile]
     }
 
@@ -139,11 +139,13 @@ class FilesystemConfigurationServiceSpec extends Specification {
         NpmrcProfile npmCentralProfile = NpmrcProfile.builder()
             .name("npm-central")
             .path(APP_PROFILES_FOLDER_PATH.resolve("npm-central").toAbsolutePath().toString())
+            .active(true)
             .build()
         String npmCentralProfileContents = "$npmrcFileContents"
         NpmrcProfile customProfile = NpmrcProfile.builder()
             .name("custom-profile")
             .path(APP_PROFILES_FOLDER_PATH.resolve("custom-profile").toAbsolutePath().toString())
+            .active(false)
             .build()
 
         when:
@@ -160,7 +162,6 @@ class FilesystemConfigurationServiceSpec extends Specification {
 
         noExceptionThrown()
         result.npmrcPath == DEFAULT_NPMRC_PATH.toAbsolutePath().toString()
-        result.activeProfile == npmCentralProfile.name()
         result.profiles == [npmCentralProfile]
     }
 
@@ -173,11 +174,13 @@ class FilesystemConfigurationServiceSpec extends Specification {
         NpmrcProfile npmCentralProfile = NpmrcProfile.builder()
             .name("npm-central")
             .path(APP_PROFILES_FOLDER_PATH.resolve("npm-central").toAbsolutePath().toString())
+            .active(true)
             .build()
         String npmCentralProfileContents = "$npmrcFileContents"
         NpmrcProfile customProfile = NpmrcProfile.builder()
             .name("custom-profile")
             .path(APP_PROFILES_FOLDER_PATH.resolve("custom-profile").toAbsolutePath().toString())
+            .active(false)
             .build()
         String customProfileContents = String.format("registry=https://some-other-reg.localhost/%n//some-other-reg.localhost/:_auth=asdf")
 
@@ -196,7 +199,6 @@ class FilesystemConfigurationServiceSpec extends Specification {
 
         noExceptionThrown()
         result.npmrcPath == DEFAULT_NPMRC_PATH.toAbsolutePath().toString()
-        result.activeProfile == npmCentralProfile.name()
         result.profiles == [npmCentralProfile, customProfile]
     }
 
@@ -218,10 +220,17 @@ class FilesystemConfigurationServiceSpec extends Specification {
         given:
         NpmrcmConfiguration configuration = NpmrcmConfiguration.builder()
             .npmrcPath("/home/user/.npmrc")
-            .activeProfile("npm-central")
             .profiles([
-                NpmrcProfile.builder().name("npm-central").path("/home/user/.npmrcm/profiles/npm-central").build(),
-                NpmrcProfile.builder().name("custom").path("/home/user/.npmrcm/profiles/custom").build()
+                NpmrcProfile.builder()
+                    .name("npm-central")
+                    .path("/home/user/.npmrcm/profiles/npm-central")
+                    .active(true)
+                    .build(),
+                NpmrcProfile.builder()
+                    .name("custom")
+                    .path("/home/user/.npmrcm/profiles/custom")
+                    .active(false)
+                    .build()
             ])
             .build()
 
@@ -239,10 +248,17 @@ class FilesystemConfigurationServiceSpec extends Specification {
         given:
         NpmrcmConfiguration configuration = NpmrcmConfiguration.builder()
             .npmrcPath("/home/user/.npmrc")
-            .activeProfile("npm-central")
             .profiles([
-                NpmrcProfile.builder().name("npm-central").path("/home/user/.npmrcm/profiles/npm-central").build(),
-                NpmrcProfile.builder().name("custom").path("/home/user/.npmrcm/profiles/custom").build()
+                NpmrcProfile.builder()
+                    .name("npm-central")
+                    .path("/home/user/.npmrcm/profiles/npm-central")
+                    .active(true)
+                    .build(),
+                NpmrcProfile.builder()
+                    .name("custom")
+                    .path("/home/user/.npmrcm/profiles/custom")
+                    .active(false)
+                    .build()
             ])
             .build()
         String serializedContent = String.format("{%n  \"npmrcPath\" : \"/home/user/.npmrc\"%n}")
