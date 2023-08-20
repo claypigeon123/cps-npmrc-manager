@@ -34,6 +34,13 @@ public class ListApi extends Api {
 
     @Override
     protected void start() {
+        List<NpmrcProfile> profiles = configuration.getProfiles();
+
+        if (profiles.isEmpty()) {
+            System.err.printf("No profiles are configured%n");
+            return;
+        }
+
         printProfiles(configuration.getProfiles());
     }
 
