@@ -10,6 +10,8 @@ import picocli.CommandLine.ExitCode
 import spock.lang.Specification
 import spock.util.environment.RestoreSystemProperties
 
+import static java.lang.String.format
+
 @RestoreSystemProperties
 class ActiveApiSpec extends Specification {
 
@@ -39,16 +41,29 @@ class ActiveApiSpec extends Specification {
 
         noExceptionThrown()
         exitCode == ExitCode.OK
-        output.out.trim() == expectedOutMessage
-        output.err.trim() == expectedErrMessage
+        output.out == format(expectedOutMessage)
+        output.err == format(expectedErrMessage)
 
         where:
-        profiles                                                                                      || expectedOutMessage            | expectedErrMessage
-        [new NpmrcProfile("npm-central", "/", true)]                                                  || "npm-central"                 | ""
-        [new NpmrcProfile("npm-central", "/", true), new NpmrcProfile("custom-profile", "/", false)]  || "npm-central"                 | ""
-        [new NpmrcProfile("npm-central", "/", false), new NpmrcProfile("custom-profile", "/", true)]  || "custom-profile"              | ""
-        [new NpmrcProfile("npm-central", "/", true), new NpmrcProfile("custom-profile", "/", true)]   || "npm-central, custom-profile" | ""
-        [new NpmrcProfile("npm-central", "/", false)]                                                 || ""                            | "None of the configured profiles are active"
-        [new NpmrcProfile("npm-central", "/", false), new NpmrcProfile("custom-profile", "/", false)] || ""                            | "None of the configured profiles are active"
+        profiles                                                                                      || expectedOutMessage              | expectedErrMessage
+        [new NpmrcProfile("npm-central", "/", true)]                                                  || "npm-central%n"                 | ""
+        [new NpmrcProfile("npm-central", "/", true), new NpmrcProfile("custom-profile", "/", false)]  || "npm-central%n"                 | ""
+        [new NpmrcProfile("npm-central", "/", false), new NpmrcProfile("custom-profile", "/", true)]  || "custom-profile%n"              | ""
+        [new NpmrcProfile("npm-central", "/", true), new NpmrcProfile("custom-profile", "/", true)]   || "npm-central, custom-profile%n" | ""
+        [new NpmrcProfile("npm-central", "/", false)]                                                 || ""                              | "None of the configured profiles are active%n"
+        [new NpmrcProfile("npm-central", "/", false), new NpmrcProfile("custom-profile", "/", false)] || ""                              | "None of the configured profiles are active%n"
+    }
+
+    def "check active profile - app error"() {
+        when:
+        int exitCode = cmd.execute()
+
+        then:
+        1 * configurationService.load() >> { throw new IllegalStateException("Something went wrong") }
+
+        noExceptionThrown()
+        exitCode == ExitCode.SOFTWARE
+        output.out == ""
+        output.err == format("Something went wrong%n")
     }
 }

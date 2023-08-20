@@ -70,17 +70,41 @@ class ListApiSpec extends Specification {
         
         # profile name:         custom-profile
         # persistent path:      /
-        # active?               no\
+        # active?               no
         """.stripIndent().replaceAll("\n", System.lineSeparator())
 
         when:
-        int exitCode = cmd.execute("--verbose")
+        int exitCode = cmd.execute(args)
 
         then:
         1 * configurationService.load() >> configuration
 
         noExceptionThrown()
         exitCode == ExitCode.OK
-        output.out.trim() == format(expectedMessage)
+        output.out == format(expectedMessage)
+        output.err == ""
+
+        where:
+        args                      | _
+        ["--verbose"] as String[] | _
+        ["-v"] as String[]        | _
+    }
+
+    def "list profiles - app error"() {
+        when:
+        int exitCode = cmd.execute()
+
+        then:
+        1 * configurationService.load() >> { throw new IllegalStateException("Something went wrong") }
+
+        noExceptionThrown()
+        exitCode == ExitCode.SOFTWARE
+        output.out == ""
+        output.err == format("Something went wrong%n")
+
+        where:
+        args                      | _
+        ["--verbose"] as String[] | _
+        ["-v"] as String[]        | _
     }
 }

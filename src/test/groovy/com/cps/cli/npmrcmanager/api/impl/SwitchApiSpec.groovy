@@ -68,7 +68,7 @@ class SwitchApiSpec extends Specification {
         int exitCode = cmd.execute("profile")
 
         then:
-        1 * configurationService.load() >> { throw new IllegalArgumentException("Something went wrong") }
+        1 * configurationService.load() >> { throw new IllegalStateException("Something went wrong") }
         0 * npmrcService.switchToProfile(_, _)
 
         noExceptionThrown()
