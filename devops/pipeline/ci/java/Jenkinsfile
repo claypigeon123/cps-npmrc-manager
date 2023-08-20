@@ -41,7 +41,7 @@ pipeline {
         stage ('maven deploy') {
             steps {
                 withMaven(maven: env.MVN_TOOL, jdk: env.JDK_TOOL) {
-                    sh "mvn deploy -DskipTests=true -f ${env.ROOT}/pom.xml"
+                    sh "mvn install:install deploy:deploy -DskipTests=true -f ${env.ROOT}/pom.xml"
                 }
             }
         }
