@@ -4,7 +4,6 @@ pipeline {
     environment {
         MAILTO_ON_FAIL     = "n.zoltan18@gmail.com"
 
-        LABEL_CONTROLLER   = "controller"
         LABEL_LINUX_X86_64 = "linux_x86-64"
         LABEL_LINUX_ARM64  = "linux_arm64"
 
@@ -20,7 +19,7 @@ pipeline {
     }
 
     agent {
-        label "${env.LABEL_CONTROLLER}"
+        label "controller"
     }
 
     triggers {
