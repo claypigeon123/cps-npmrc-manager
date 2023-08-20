@@ -35,6 +35,11 @@ public class ActiveApi extends Api {
             .map(NpmrcProfile::name)
             .collect(Collectors.joining(", "));
 
+        if (profiles.isBlank()) {
+            System.err.printf("None of the configured profiles are active%n");
+            return;
+        }
+
         System.out.printf("%s%n", profiles);
     }
 }
