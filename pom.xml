@@ -13,6 +13,14 @@
     <artifactId>cps-npmrc-manager</artifactId>
     <version>1.0.2-SNAPSHOT</version>
 
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://github.com/claypigeon123/cps-npmrc-manager/blob/main/LICENSE</url>
+            <distribution>manual</distribution>
+        </license>
+    </licenses>
+
     <properties>
         <!-- BASIC META -->
         <java.version>17</java.version>
