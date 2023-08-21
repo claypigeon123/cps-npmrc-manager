@@ -1,4 +1,5 @@
 def version
+def executableName
 
 pipeline {
     environment {
@@ -34,8 +35,13 @@ pipeline {
                 deleteDir()
                 checkout scm
                 script {
-                    String snapshotVersion = readMavenPom(file: "${env.ROOT}\\pom.xml").getVersion()
-                    version = snapshotVersion.split("-SNAPSHOT")[0]
+                    def pom = readMavenPom(file: "${env.ROOT}/pom.xml")
+
+                    String snapshotVersion = pom.getVersion()
+                    version = snapshotVersion.replaceFirst("-SNAPSHOT|-RC|-RELEASE", "")
+
+                    def properties = pom.getProperties()
+                    executableName = properties.getProperty("executable.name")
                 }
             }
         }
@@ -53,7 +59,7 @@ pipeline {
                 withCredentials([usernameColonPassword(credentialsId: "${env.NEXUS_CREDENTIALS}", variable: 'NEXUS_USERPASS')]) {
                     script {
                         def zipName = "${env.NAME}_${env.BUILD_ARCH}_${version}.zip"
-                        zip(archive: true, defaultExcludes: false, dir: "${env.ROOT}\\target", exclude: '', zipFile: zipName, glob: 'npmrcm.exe', overwrite: true)
+                        zip(archive: true, defaultExcludes: false, dir: "${env.ROOT}\\target", exclude: '', zipFile: zipName, glob: "${executableName}.exe", overwrite: true)
                         bat "curl -v" + ' --user %NEXUS_USERPASS%' + " --upload-file .\\$zipName ${env.NEXUS_URL}/${env.NAME}/$version/${env.BUILD_ARCH}/$zipName"
                     }
                 }
