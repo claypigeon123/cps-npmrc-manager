@@ -54,7 +54,7 @@ pipeline {
                     script {
                         def tarName = "${env.NAME}_${env.BUILD_ARCH}_${version}.tar.gz"
                         tar(archive: true, compress: true, defaultExcludes: false, dir: "${env.ROOT}/target", exclude: '', file: tarName, glob: 'npmrcm', overwrite: true)
-                        sh "curl -v" + ' --user $NEXUS_USERPASS' + " --upload-file ./$tarName ${env.NEXUS_URL}/${env.NAME}/${env.BUILD_ARCH}/$version/$tarName"
+                        sh "curl -v" + ' --user $NEXUS_USERPASS' + " --upload-file ./$tarName ${env.NEXUS_URL}/${env.NAME}/$version/${env.BUILD_ARCH}/$tarName"
                     }
                 }
             }

@@ -54,7 +54,7 @@ pipeline {
                     script {
                         def zipName = "${env.NAME}_${env.BUILD_ARCH}_${version}.zip"
                         zip(archive: true, defaultExcludes: false, dir: "${env.ROOT}\\target", exclude: '', zipFile: zipName, glob: 'npmrcm.exe', overwrite: true)
-                        bat "curl -v" + ' --user %NEXUS_USERPASS%' + " --upload-file .\\$zipName ${env.NEXUS_URL}/${env.NAME}/${env.BUILD_ARCH}/$version/$zipName"
+                        bat "curl -v" + ' --user %NEXUS_USERPASS%' + " --upload-file .\\$zipName ${env.NEXUS_URL}/${env.NAME}/$version/${env.BUILD_ARCH}/$zipName"
                     }
                 }
             }
