@@ -137,7 +137,7 @@ public class FilesystemConfigurationService implements ConfigurationService {
     // --
 
     @PostConstruct
-    private void postConstruct() {
+    void postConstruct() {
         filesystemHelper.createDirs(filesystemHelper.getProfilesFolder());
     }
 }
