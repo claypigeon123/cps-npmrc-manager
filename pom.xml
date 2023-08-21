@@ -13,6 +13,13 @@
     <artifactId>cps-npmrc-manager</artifactId>
     <version>1.0.2-SNAPSHOT</version>
 
+    <developers>
+        <developer>
+            <name>claypigeon123</name>
+            <url>https://github.com/claypigeon123</url>
+        </developer>
+    </developers>
+
     <licenses>
         <license>
             <name>MIT License</name>
