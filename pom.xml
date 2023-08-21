@@ -16,6 +16,8 @@
     <properties>
         <!-- BASIC META -->
         <java.version>17</java.version>
+        <executable.name>npmrcm</executable.name>
+        <main.class>com.cps.cli.npmrcmanager.AppRunner</main.class>
 
         <!-- DEPENDENCY VERSIONING -->
         <spock-bom.version>2.3-groovy-4.0</spock-bom.version>
@@ -189,8 +191,8 @@
                         <artifactId>native-maven-plugin</artifactId>
                         <extensions>true</extensions>
                         <configuration>
-                            <imageName>npmrcm</imageName>
-                            <mainClass>com.cps.cli.npmrcmanager.AppRunner</mainClass>
+                            <imageName>${executable.name}</imageName>
+                            <mainClass>${main.class}</mainClass>
                             <buildArgs>--no-fallback</buildArgs>
                             <skipNativeTests>true</skipNativeTests>
                         </configuration>

@@ -1,5 +1,6 @@
 package com.cps.cli.npmrcmanager
 
+import com.cps.cli.npmrcmanager.util.PicocliProvider
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -12,11 +13,11 @@ import spock.util.environment.RestoreSystemProperties
 
 import static java.lang.String.format
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, properties = [
-    "info.name=APP_NAME", "info.version=APP_VERSION"
-])
-@ContextConfiguration()
+@ContextConfiguration
 @RestoreSystemProperties
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, properties = [
+    "info.name=cps-npmrc-manager", "info.version=127.0.0.1-SNAPSHOT", "info.executable-name=npmrcm"
+])
 class AppSpec extends Specification {
 
     private static final String USAGE_MESSAGE = """\
@@ -36,10 +37,13 @@ class AppSpec extends Specification {
     @Autowired
     IFactory factory
 
+    @Autowired
+    PicocliProvider picocliProvider
+
     CommandLine cmd
 
     void setup() {
-        cmd = new CommandLine(new App(), factory)
+        cmd = new CommandLine(new App(), factory).setCommandName(picocliProvider.getExecutableName())
     }
 
     def "used without subcommand"() {
@@ -82,7 +86,7 @@ class AppSpec extends Specification {
         then:
         noExceptionThrown()
         exitCode == CommandLine.ExitCode.OK
-        output.out == format("APP_NAME - version APP_VERSION%n")
+        output.out == format("cps-npmrc-manager - version 127.0.0.1%n")
         output.err == ""
 
         where:

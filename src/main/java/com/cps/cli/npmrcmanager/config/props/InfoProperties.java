@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("info")
 public record InfoProperties(
     String name,
-    String version
+    String version,
+    String executableName
 ) {
 }
