@@ -74,7 +74,7 @@ class ListApiSpec extends Specification {
         """.stripIndent().replaceAll("\n", System.lineSeparator())
 
         when:
-        int exitCode = cmd.execute(args)
+        int exitCode = cmd.execute(args as String[])
 
         then:
         1 * configurationService.load() >> configuration
@@ -85,9 +85,9 @@ class ListApiSpec extends Specification {
         output.err == ""
 
         where:
-        args                      | _
-        ["--verbose"] as String[] | _
-        ["-v"] as String[]        | _
+        args          | _
+        ["--verbose"] | _
+        ["-v"]        | _
     }
 
     def "list profiles - app error"() {
@@ -101,10 +101,5 @@ class ListApiSpec extends Specification {
         exitCode == ExitCode.SOFTWARE
         output.out == ""
         output.err == format("Something went wrong%n")
-
-        where:
-        args                      | _
-        ["--verbose"] as String[] | _
-        ["-v"] as String[]        | _
     }
 }
