@@ -1,17 +1,23 @@
 package com.cps.cli.npmrcmanager;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import picocli.CommandLine;
+import picocli.CommandLine.IFactory;
 
 @SpringBootApplication
 @RequiredArgsConstructor
 public class AppRunner implements CommandLineRunner, ExitCodeGenerator {
+
+    @NonNull
     private final App app;
-    private final CommandLine.IFactory factory;
+
+    @NonNull
+    private final IFactory factory;
 
     private int exitCode = 0;
 
