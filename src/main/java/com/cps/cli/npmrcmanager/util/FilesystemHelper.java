@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 @Component
 public class FilesystemHelper {
     private static final Path USER_HOME_PATH = Path.of(System.getProperty("user.home"));
@@ -32,7 +34,7 @@ public class FilesystemHelper {
         try {
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw new UncheckedIOException("Error copying [" + source + "] to [" + target + "]: " + e.getMessage(), e);
+            throw new UncheckedIOException(format("Error copying [%s] to [%s]: %s", source, target, e.getMessage()), e);
         }
     }
 
@@ -40,7 +42,7 @@ public class FilesystemHelper {
         try (PrintWriter pw = new PrintWriter(new BufferedOutputStream(new FileOutputStream(target.toString())))) {
             pw.println(content);
         } catch (IOException e) {
-            throw new UncheckedIOException("Error writing to file [" + target + "]: " + e.getMessage(), e);
+            throw new UncheckedIOException(format("Error writing to file [%s]: %s", target, e.getMessage()), e);
         }
     }
 
@@ -54,7 +56,7 @@ public class FilesystemHelper {
         try {
             Files.deleteIfExists(path);
         } catch (IOException e) {
-            throw new UncheckedIOException("Error deleting file at location [" + path.toAbsolutePath() + "]: " + e.getMessage(), e);
+            throw new UncheckedIOException(format("Error deleting file at location [%s]: %s", path.toAbsolutePath(), e.getMessage()), e);
         }
     }
 
@@ -62,7 +64,7 @@ public class FilesystemHelper {
         try {
             return Files.readString(path);
         } catch (IOException e) {
-            throw new UncheckedIOException("Error reading file at location [" + path.toAbsolutePath() + "]: " + e.getMessage(), e);
+            throw new UncheckedIOException(format("Error reading file at location [%s]: %s", path.toAbsolutePath(), e.getMessage()), e);
         }
     }
 
@@ -70,7 +72,7 @@ public class FilesystemHelper {
         try {
             return Files.list(path);
         } catch (IOException e) {
-            throw new UncheckedIOException("Error listing files in location [" + path.toAbsolutePath() + "]: " + e.getMessage(), e);
+            throw new UncheckedIOException(format("Error listing files in location [%s]: %s", path.toAbsolutePath(), e.getMessage()), e);
         }
     }
 
@@ -78,7 +80,7 @@ public class FilesystemHelper {
         try {
             Files.createDirectories(path);
         } catch (IOException e) {
-            throw new UncheckedIOException("Failed to create dirs through location [" + path.toAbsolutePath() + "]: " + e.getMessage(), e);
+            throw new UncheckedIOException(format("Failed to create dirs through location [%s]: %s", path.toAbsolutePath(), e.getMessage()), e);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.cps.cli.npmrcmanager.api.impl;
 import com.cps.cli.npmrcmanager.api.Api;
 import com.cps.cli.npmrcmanager.service.configuration.ConfigurationService;
 import com.cps.cli.npmrcmanager.service.input.UserInputService;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,7 @@ import picocli.CommandLine.Command;
 
 @Component
 @RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Command(name = "setup", description = "-> Run guided setup of required configuration for this tool", mixinStandardHelpOptions = true)
 public class SetupApi extends Api {
 
@@ -27,7 +29,7 @@ public class SetupApi extends Api {
         if (!configExists) return;
 
         boolean wantsToProceed = userInputService.promptForYesOrNo("Config file already exists. Are you sure you want to proceed?");
-        if (!wantsToProceed) throw new RuntimeException("Terminated by user");
+        if (!wantsToProceed) throw new IllegalStateException("Terminated by user");
     }
 
     @Override

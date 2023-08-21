@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.lang.String.format;
+
 @Service
 @RequiredArgsConstructor
 public class FilesystemConfigurationService implements ConfigurationService {
@@ -49,7 +51,6 @@ public class FilesystemConfigurationService implements ConfigurationService {
         NpmrcmConfiguration configuration = NpmrcmConfiguration.builder()
             .npmrcPath(npmrcPath.toAbsolutePath().toString())
             .profiles(new ArrayList<>(List.of(profile)))
-            .activeProfile(profile.name())
             .build();
 
         save(configuration);
@@ -62,8 +63,8 @@ public class FilesystemConfigurationService implements ConfigurationService {
         try {
             configFileContents = filesystemHelper.read(configJsonFilePath);
         } catch (UncheckedIOException e) {
-            throw new IllegalStateException(String.format(
-                "Config file not found in the location it is supposed to be at: [%s]%nSet it up by running \"npmrcm setup\"",
+            throw new IllegalStateException(format(
+                "Config file not found in the location it is supposed to be at: [%s]%nSUGGESTION: Set it up by running \"npmrcm setup\"",
                 configJsonFilePath
             ));
         }
@@ -72,7 +73,7 @@ public class FilesystemConfigurationService implements ConfigurationService {
         try {
             configuration = objectMapper.readValue(configFileContents, NpmrcmConfiguration.class);
         } catch (IOException e) {
-            throw new IllegalStateException("Error while parsing configuration json file: " + e.getMessage(), e);
+            throw new IllegalStateException(format("Error while parsing configuration json file: %s", e.getMessage()), e);
         }
 
         Path npmrcPath = Path.of(configuration.getNpmrcPath()).toAbsolutePath();
@@ -95,16 +96,14 @@ public class FilesystemConfigurationService implements ConfigurationService {
                 continue;
             }
 
+            String fileContents = filesystemHelper.read(profilePath);
+            boolean active = npmrcFileContentsOpt.isPresent() && fileContents.equals(npmrcFileContentsOpt.get());
+
             NpmrcProfile profile = NpmrcProfile.builder()
                 .name(profilePath.getFileName().toString())
                 .path(profilePath.toAbsolutePath().toString())
+                .active(active)
                 .build();
-
-            String fileContents = filesystemHelper.read(profilePath);
-
-            if (npmrcFileContentsOpt.isPresent() && fileContents.equals(npmrcFileContentsOpt.get())) {
-                configuration.setActiveProfile(profile.name());
-            }
 
             configuration.getProfiles().add(profile);
         }
@@ -124,7 +123,7 @@ public class FilesystemConfigurationService implements ConfigurationService {
         try {
             content = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(configuration);
         } catch (IOException e) {
-            throw new UncheckedIOException("Error while serializing app configuration to json: " + e.getMessage(), e);
+            throw new UncheckedIOException(format("Error while serializing app configuration to json: %s", e.getMessage()), e);
         }
 
         filesystemHelper.write(filesystemHelper.getConfigJsonFilePath(), content);

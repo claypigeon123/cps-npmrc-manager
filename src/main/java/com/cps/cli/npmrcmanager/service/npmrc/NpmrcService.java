@@ -1,6 +1,7 @@
 package com.cps.cli.npmrcmanager.service.npmrc;
 
 import com.cps.cli.npmrcmanager.model.NpmrcProfile;
+import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration;
 import lombok.NonNull;
 
 public interface NpmrcService {
@@ -8,5 +9,5 @@ public interface NpmrcService {
 
     NpmrcProfile recordNewNpmrcForCentralRegistryIntoProfile(@NonNull String npmrcLocation, @NonNull String profilesLocation);
 
-    void switchToProfile(@NonNull String npmrcLocation, @NonNull NpmrcProfile profile);
+    void switchToProfile(@NonNull NpmrcmConfiguration configuration, @NonNull String targetProfileName);
 }

@@ -2,27 +2,17 @@ package com.cps.cli.npmrcmanager.service.input.impl
 
 import com.cps.cli.npmrcmanager.service.input.UserInputService
 import spock.lang.Specification
+import spock.util.environment.RestoreSystemProperties
 
 import java.nio.file.Path
 
-class StdUserInputServiceSpec extends Specification {
+import static java.lang.String.format
 
-    // save std in & out
-    InputStream stdIn
-    PrintStream stdOut
+@RestoreSystemProperties
+class StdUserInputServiceSpec extends Specification {
 
     // tested class
     UserInputService userInputService
-
-    void setup() {
-        stdIn = System.in
-        stdOut = System.out
-    }
-
-    void cleanup() {
-        System.setIn(stdIn)
-        System.setOut(stdOut)
-    }
 
     def "prompt for yes or no with answer of #input, expecting #expected"() {
         given:
@@ -43,7 +33,7 @@ class StdUserInputServiceSpec extends Specification {
 
         then:
         noExceptionThrown()
-        new String(baos.toByteArray()) == String.format("%nDo you like tea? (Y/N): %n")
+        new String(baos.toByteArray()) == format("%nDo you like tea? (Y/N): %n")
         result == expected
 
         where:
@@ -74,7 +64,7 @@ class StdUserInputServiceSpec extends Specification {
 
         then:
         noExceptionThrown()
-        new String(baos.toByteArray()) == String.format("%nWhere is your favourite beverage? [%s]: %n", defaultValue)
+        new String(baos.toByteArray()) == format("%nWhere is your favourite beverage? [%s]: %n", defaultValue)
         result == expected
 
         where:
@@ -105,8 +95,8 @@ class StdUserInputServiceSpec extends Specification {
 
         then:
         noExceptionThrown()
-        def oneExpectedLine = String.format("Where is your favourite beverage? [%s]: %n", defaultValue)
-        new String(baos.toByteArray()) == String.format("%n%s%s", oneExpectedLine, oneExpectedLine)
+        def oneExpectedLine = format("Where is your favourite beverage? [%s]: %n", defaultValue)
+        new String(baos.toByteArray()) == format("%n%s%s", oneExpectedLine, oneExpectedLine)
         result == expected
 
         where:
@@ -136,7 +126,7 @@ class StdUserInputServiceSpec extends Specification {
 
         then:
         noExceptionThrown()
-        new String(baos.toByteArray()) == String.format("%nWhat is your favourite beverage? [%s]: %n", defaultValue)
+        new String(baos.toByteArray()) == format("%nWhat is your favourite beverage? [%s]: %n", defaultValue)
         result == expected
 
         where:

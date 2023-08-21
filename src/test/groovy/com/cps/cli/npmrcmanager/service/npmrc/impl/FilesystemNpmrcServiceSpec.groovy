@@ -1,6 +1,7 @@
 package com.cps.cli.npmrcmanager.service.npmrc.impl
 
 import com.cps.cli.npmrcmanager.model.NpmrcProfile
+import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration
 import com.cps.cli.npmrcmanager.service.input.UserInputService
 import com.cps.cli.npmrcmanager.service.npmrc.NpmrcService
 import com.cps.cli.npmrcmanager.util.FilesystemHelper
@@ -57,17 +58,94 @@ class FilesystemNpmrcServiceSpec extends Specification {
         result.path() == Path.of(profilesLocation, expectedProfileName).toAbsolutePath().toString()
     }
 
-    def "switch to profile"() {
+    def "switch to profile - non-existent"() {
         given:
-        String npmrcLocation = ".npmrc"
-        NpmrcProfile targetProfile = new NpmrcProfile("test-profile", ".npmrcm/profiles/test-profile")
+        String targetProfileName = "I don't exist"
+        Path npmrcPath = Path.of("user", "home", ".npmrc").toAbsolutePath()
+        NpmrcmConfiguration configuration = NpmrcmConfiguration.builder()
+            .npmrcPath(npmrcPath.toString())
+            .profiles([
+                NpmrcProfile.builder()
+                    .name("test-profile-1")
+                    .path(Path.of("user", "home", ".npmrcm", "profiles", "test-profile-1").toAbsolutePath().toString())
+                    .active(true)
+                    .build(),
+                NpmrcProfile.builder()
+                    .name("test-profile-2")
+                    .path(Path.of("user", "home", ".npmrcm", "profiles", "test-profile-2").toAbsolutePath().toString())
+                    .active(false)
+                    .build()
+            ])
+            .build()
 
         when:
-        npmrcService.switchToProfile(npmrcLocation, targetProfile)
+        npmrcService.switchToProfile(configuration, targetProfileName)
 
         then:
-        1 * filesystemHelper.copy(Path.of(targetProfile.path()).toAbsolutePath(), Path.of(npmrcLocation).toAbsolutePath())
+        0 * filesystemHelper.copy(_, _)
+
+        thrown(IllegalStateException)
+    }
+
+    def "switch to profile - already active"() {
+        given:
+        String targetProfileName = "test-profile-2"
+        Path npmrcPath = Path.of("user", "home", ".npmrc").toAbsolutePath()
+        NpmrcmConfiguration configuration = NpmrcmConfiguration.builder()
+            .npmrcPath(npmrcPath.toString())
+            .profiles([
+                NpmrcProfile.builder()
+                    .name("test-profile-1")
+                    .path(Path.of("user", "home", ".npmrcm", "profiles", "test-profile-1").toAbsolutePath().toString())
+                    .active(false)
+                    .build(),
+                NpmrcProfile.builder()
+                    .name("test-profile-2")
+                    .path(Path.of("user", "home", ".npmrcm", "profiles", "test-profile-2").toAbsolutePath().toString())
+                    .active(true)
+                    .build()
+            ])
+            .build()
+
+        when:
+        npmrcService.switchToProfile(configuration, targetProfileName)
+
+        then:
+        0 * filesystemHelper.copy(_, _)
+
+        thrown(IllegalStateException)
+    }
+
+    def "switch to profile"() {
+        given:
+        Path npmrcPath = Path.of("user", "home", ".npmrc").toAbsolutePath()
+        NpmrcmConfiguration configuration = NpmrcmConfiguration.builder()
+            .npmrcPath(npmrcPath.toString())
+            .profiles([
+                NpmrcProfile.builder()
+                    .name("test-profile-1")
+                    .path(Path.of("user", "home", ".npmrcm", "profiles", "test-profile-1").toAbsolutePath().toString())
+                    .active(false)
+                    .build(),
+                NpmrcProfile.builder()
+                    .name("test-profile-2")
+                    .path(Path.of("user", "home", ".npmrcm", "profiles", "test-profile-2").toAbsolutePath().toString())
+                    .active(false)
+                    .build()
+            ])
+            .build()
+
+        when:
+        npmrcService.switchToProfile(configuration, targetProfileName)
+
+        then:
+        1 * filesystemHelper.copy(Path.of(expectedProfile.path()).toAbsolutePath(), Path.of(npmrcPath.toString()).toAbsolutePath())
 
         noExceptionThrown()
+
+        where:
+        targetProfileName || expectedProfile
+        "test-profile-1"  || new NpmrcProfile("test-profile-1", Path.of("user", "home", ".npmrcm", "profiles", "test-profile-1").toAbsolutePath().toString(), false)
+        "test-profile-2"  || new NpmrcProfile("test-profile-2", Path.of("user", "home", ".npmrcm", "profiles", "test-profile-2").toAbsolutePath().toString(), false)
     }
 }

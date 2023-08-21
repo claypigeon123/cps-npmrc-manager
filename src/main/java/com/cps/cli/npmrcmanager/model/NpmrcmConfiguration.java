@@ -21,8 +21,5 @@ public class NpmrcmConfiguration implements Serializable {
     private String npmrcPath;
 
     @JsonIgnore
-    private transient String activeProfile;
-
-    @JsonIgnore
     private transient List<NpmrcProfile> profiles = new ArrayList<>();
 }
