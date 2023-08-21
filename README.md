@@ -15,10 +15,10 @@ If you want to add a new profile, create a file with a name of your liking withi
 
 ### Profile Commands
 #### `npmrcm list`
-Lists available profiles and shows which one(s) are active. Use the `--verbose` or `-v` flags for a more detailed view.
+Lists available profiles and shows which one(s) are active. Use the `--verbose` / `-v` flag for a more detailed view.
 
 #### `npmrcm active`
-View the currently active profile(s). Use the `--verbose` or `-v` flags for a more detailed view.
+View the currently active profile(s).
 
 The active profile is decided by comparing the content of the current .npmrc file to the contents of profile files in the `~/.npmrcm/profiles` directory.
 
