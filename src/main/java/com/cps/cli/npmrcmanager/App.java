@@ -4,14 +4,13 @@ import com.cps.cli.npmrcmanager.api.impl.ActiveApi;
 import com.cps.cli.npmrcmanager.api.impl.ListApi;
 import com.cps.cli.npmrcmanager.api.impl.SetupApi;
 import com.cps.cli.npmrcmanager.api.impl.SwitchApi;
-import com.cps.cli.npmrcmanager.config.VersionProviderConfiguration;
+import com.cps.cli.npmrcmanager.util.PicocliProvider;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 
 @Component
 @Command(
-    name = "npmrcm",
-    versionProvider = VersionProviderConfiguration.class,
+    versionProvider = PicocliProvider.class,
     mixinStandardHelpOptions = true,
     subcommands = {
         SetupApi.class,

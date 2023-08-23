@@ -1,22 +1,24 @@
 package com.cps.cli.npmrcmanager
 
+import com.cps.cli.npmrcmanager.util.PicocliProvider
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.system.OutputCaptureRule
 import org.springframework.test.context.ContextConfiguration
 import picocli.CommandLine
+import picocli.CommandLine.ExitCode
 import picocli.CommandLine.IFactory
 import spock.lang.Specification
 import spock.util.environment.RestoreSystemProperties
 
 import static java.lang.String.format
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, properties = [
-    "info.name=APP_NAME", "info.version=APP_VERSION"
-])
-@ContextConfiguration()
+@ContextConfiguration
 @RestoreSystemProperties
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, properties = [
+    "info.name=cps-npmrc-manager", "info.version=127.0.0.1-SNAPSHOT", "info.executable-name=npmrcm"
+])
 class AppSpec extends Specification {
 
     private static final String USAGE_MESSAGE = """\
@@ -36,58 +38,31 @@ class AppSpec extends Specification {
     @Autowired
     IFactory factory
 
+    @Autowired
+    PicocliProvider picocliProvider
+
     CommandLine cmd
 
     void setup() {
-        cmd = new CommandLine(new App(), factory)
+        cmd = new CommandLine(new App(), factory).setCommandName(picocliProvider.getExecutableName())
     }
 
-    def "used without subcommand"() {
-        given:
-        String expectedErrMessage = format("Missing required subcommand%n$USAGE_MESSAGE")
-
+    def "general usage sanity test: #testCase"() {
         when:
-        int exitCode = cmd.execute()
+        int exitCode = cmd.execute(args as String[])
 
         then:
         noExceptionThrown()
-        exitCode == CommandLine.ExitCode.USAGE
-        output.out == ""
-        output.err == expectedErrMessage
-    }
-
-    def "help message"() {
-        given:
-        String expectedOutMessage = USAGE_MESSAGE
-
-        when:
-        int exitCode = cmd.execute(args)
-
-        then:
-        noExceptionThrown()
-        exitCode == CommandLine.ExitCode.OK
-        output.out == expectedOutMessage
-        output.err == ""
+        exitCode == expectedCode
+        output.out == format(expectedOutMessage)
+        output.err == format(expectedErrMessage)
 
         where:
-        args                   | _
-        ["--help"] as String[] | _
-        ["-h"] as String[]     | _
-    }
-
-    def "version message"() {
-        when:
-        int exitCode = cmd.execute(args)
-
-        then:
-        noExceptionThrown()
-        exitCode == CommandLine.ExitCode.OK
-        output.out == format("APP_NAME - version APP_VERSION%n")
-        output.err == ""
-
-        where:
-        args                      | _
-        ["--version"] as String[] | _
-        ["-V"] as String[]        | _
+        testCase                | args          || expectedCode   | expectedOutMessage                        | expectedErrMessage
+        "no subcommand"         | []            || ExitCode.USAGE | ""                                        | "Missing required subcommand%n$USAGE_MESSAGE"
+        "help message short"    | ["-h"]        || ExitCode.OK    | USAGE_MESSAGE                             | ""
+        "help message long"     | ["--help"]    || ExitCode.OK    | USAGE_MESSAGE                             | ""
+        "version message short" | ["-V"]        || ExitCode.OK    | "cps-npmrc-manager - version 127.0.0.1%n" | ""
+        "version message long"  | ["--version"] || ExitCode.OK    | "cps-npmrc-manager - version 127.0.0.1%n" | ""
     }
 }

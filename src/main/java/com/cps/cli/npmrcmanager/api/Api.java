@@ -2,15 +2,14 @@ package com.cps.cli.npmrcmanager.api;
 
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.IExitCodeGenerator;
 
-@ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public abstract class Api implements Runnable, IExitCodeGenerator {
 
-    protected int exitCode = 0;
+    protected int exitCode = ExitCode.OK;
 
     protected void initialize() {}
 
@@ -26,7 +25,7 @@ public abstract class Api implements Runnable, IExitCodeGenerator {
             close();
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            exitCode = 1;
+            exitCode = ExitCode.SOFTWARE;
         }
     }
 

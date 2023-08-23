@@ -32,8 +32,8 @@ class FilesystemConfigurationServiceSpec extends Specification {
     NpmrcService npmrcService = Mock()
     FilesystemHelper filesystemHelper = Mock() {
         getDefaultNpmrcPath() >> DEFAULT_NPMRC_PATH
-        getProfilesFolder() >> APP_PROFILES_FOLDER_PATH
-        getConfigJsonFilePath() >> APP_CONFIG_JSON_PATH
+        getProfilesDirPath() >> APP_PROFILES_FOLDER_PATH
+        getConfigJsonPath() >> APP_CONFIG_JSON_PATH
     }
 
     // tested class

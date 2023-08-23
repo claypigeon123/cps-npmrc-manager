@@ -14,20 +14,20 @@ import static java.lang.String.format;
 public class FilesystemHelper {
     private static final Path USER_HOME_PATH = Path.of(System.getProperty("user.home"));
     private static final Path DEFAULT_NPMRC_PATH = USER_HOME_PATH.resolve(".npmrc");
-    private static final Path CONFIG_FOLDER = USER_HOME_PATH.resolve(".npmrcm");
-    private static final Path PROFILES_FOLDER = CONFIG_FOLDER.resolve("profiles");
-    private static final Path CONFIG_JSON_FILE_PATH = CONFIG_FOLDER.resolve("config.json");
+    private static final Path CONFIG_DIR = USER_HOME_PATH.resolve(".npmrcm");
+    private static final Path PROFILES_DIR = CONFIG_DIR.resolve("profiles");
+    private static final Path CONFIG_JSON_PATH = CONFIG_DIR.resolve("config.json");
 
     public Path getDefaultNpmrcPath() {
         return DEFAULT_NPMRC_PATH;
     }
 
-    public Path getProfilesFolder() {
-        return PROFILES_FOLDER;
+    public Path getProfilesDirPath() {
+        return PROFILES_DIR;
     }
 
-    public Path getConfigJsonFilePath() {
-        return CONFIG_JSON_FILE_PATH;
+    public Path getConfigJsonPath() {
+        return CONFIG_JSON_PATH;
     }
 
     public void copy(Path source, Path target) {

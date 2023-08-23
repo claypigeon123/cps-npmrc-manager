@@ -1,5 +1,6 @@
 package com.cps.cli.npmrcmanager;
 
+import com.cps.cli.npmrcmanager.util.PicocliProvider;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -19,6 +20,9 @@ public class AppRunner implements CommandLineRunner, ExitCodeGenerator {
     @NonNull
     private final IFactory factory;
 
+    @NonNull
+    private final PicocliProvider picocliProvider;
+
     private int exitCode = 0;
 
     public static void main(String[] args) {
@@ -27,8 +31,9 @@ public class AppRunner implements CommandLineRunner, ExitCodeGenerator {
 
     @Override
     public void run(String... args) {
-        CommandLine cmd = new CommandLine(app, factory);
-        exitCode = cmd.execute(args);
+        exitCode = new CommandLine(app, factory)
+            .setCommandName(picocliProvider.getExecutableName())
+            .execute(args);
     }
 
     @Override

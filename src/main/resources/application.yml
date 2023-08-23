@@ -1,6 +1,7 @@
 info:
   name: '@project.artifactId@'
   version: '@project.version@'
+  executable-name: '@executable.name@'
 spring:
   main:
     web-application-type: none

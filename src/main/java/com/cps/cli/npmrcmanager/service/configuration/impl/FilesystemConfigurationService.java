@@ -42,7 +42,7 @@ public class FilesystemConfigurationService implements ConfigurationService {
         Path npmrcPath = userInputService.promptForPath("Enter path to active npmrc file", filesystemHelper.getDefaultNpmrcPath());
 
         boolean npmrcExists = filesystemHelper.exists(npmrcPath, false);
-        String profilesFolderLocation = filesystemHelper.getProfilesFolder().toAbsolutePath().toString();
+        String profilesFolderLocation = filesystemHelper.getProfilesDirPath().toAbsolutePath().toString();
 
         NpmrcProfile profile = npmrcExists
             ? npmrcService.recordExistingNpmrcIntoProfile(npmrcPath.toString(), profilesFolderLocation)
@@ -58,7 +58,7 @@ public class FilesystemConfigurationService implements ConfigurationService {
 
     @Override
     public NpmrcmConfiguration load() {
-        Path configJsonFilePath = filesystemHelper.getConfigJsonFilePath();
+        Path configJsonFilePath = filesystemHelper.getConfigJsonPath();
         String configFileContents;
         try {
             configFileContents = filesystemHelper.read(configJsonFilePath);
@@ -87,7 +87,7 @@ public class FilesystemConfigurationService implements ConfigurationService {
             npmrcFileContentsOpt = Optional.empty();
         }
 
-        List<Path> profilePaths = filesystemHelper.list(filesystemHelper.getProfilesFolder()).toList();
+        List<Path> profilePaths = filesystemHelper.list(filesystemHelper.getProfilesDirPath()).toList();
 
         if (profilePaths.isEmpty()) return configuration;
 
@@ -113,7 +113,7 @@ public class FilesystemConfigurationService implements ConfigurationService {
 
     @Override
     public boolean exists() {
-        return filesystemHelper.exists(filesystemHelper.getConfigJsonFilePath(), false);
+        return filesystemHelper.exists(filesystemHelper.getConfigJsonPath(), false);
     }
 
     @Override
@@ -126,18 +126,18 @@ public class FilesystemConfigurationService implements ConfigurationService {
             throw new UncheckedIOException(format("Error while serializing app configuration to json: %s", e.getMessage()), e);
         }
 
-        filesystemHelper.write(filesystemHelper.getConfigJsonFilePath(), content);
+        filesystemHelper.write(filesystemHelper.getConfigJsonPath(), content);
     }
 
     @Override
     public void remove() {
-        filesystemHelper.remove(filesystemHelper.getConfigJsonFilePath());
+        filesystemHelper.remove(filesystemHelper.getConfigJsonPath());
     }
 
     // --
 
     @PostConstruct
-    private void postConstruct() {
-        filesystemHelper.createDirs(filesystemHelper.getProfilesFolder());
+    void postConstruct() {
+        filesystemHelper.createDirs(filesystemHelper.getProfilesDirPath());
     }
 }
