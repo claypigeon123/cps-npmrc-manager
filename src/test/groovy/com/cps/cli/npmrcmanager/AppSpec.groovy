@@ -1,6 +1,6 @@
 package com.cps.cli.npmrcmanager
 
-import com.cps.cli.npmrcmanager.util.PicocliProvider
+import com.cps.cli.npmrcmanager.util.InfoProvider
 import org.junit.Rule
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -30,6 +30,7 @@ class AppSpec extends Specification {
       list    -> List configured .npmrc profiles
       active  -> Describe the current active profile
       switch  -> Switch to the specified .npmrc profile
+      update  -> Check for updates and update if necessary
     """.stripIndent().replaceAll("\n", System.lineSeparator())
 
     @Rule
@@ -39,7 +40,7 @@ class AppSpec extends Specification {
     IFactory factory
 
     @Autowired
-    PicocliProvider picocliProvider
+    InfoProvider picocliProvider
 
     CommandLine cmd
 

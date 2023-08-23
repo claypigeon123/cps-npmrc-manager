@@ -6,6 +6,6 @@ import org.springframework.aot.hint.annotation.Reflective;
 import java.io.Serializable;
 
 @Builder
-@Reflective // for native usage
+@Reflective
 public record NpmrcProfile (String name, String path, boolean active) implements Serializable {
 }

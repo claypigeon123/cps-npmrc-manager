@@ -13,7 +13,7 @@ import java.util.List;
 
 @Data
 @Builder
-@Reflective // for native usage
+@Reflective
 @NoArgsConstructor
 @AllArgsConstructor
 public class NpmrcmConfiguration implements Serializable {

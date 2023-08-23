@@ -1,22 +1,20 @@
 package com.cps.cli.npmrcmanager;
 
-import com.cps.cli.npmrcmanager.api.impl.ActiveApi;
-import com.cps.cli.npmrcmanager.api.impl.ListApi;
-import com.cps.cli.npmrcmanager.api.impl.SetupApi;
-import com.cps.cli.npmrcmanager.api.impl.SwitchApi;
-import com.cps.cli.npmrcmanager.util.PicocliProvider;
+import com.cps.cli.npmrcmanager.api.impl.*;
+import com.cps.cli.npmrcmanager.util.InfoProvider;
 import org.springframework.stereotype.Component;
 import picocli.CommandLine.Command;
 
 @Component
 @Command(
-    versionProvider = PicocliProvider.class,
+    versionProvider = InfoProvider.class,
     mixinStandardHelpOptions = true,
     subcommands = {
         SetupApi.class,
         ListApi.class,
         ActiveApi.class,
-        SwitchApi.class
+        SwitchApi.class,
+        UpdateApi.class
     }
 )
 public class App {

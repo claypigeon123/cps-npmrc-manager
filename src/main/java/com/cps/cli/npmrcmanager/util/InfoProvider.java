@@ -10,7 +10,7 @@ import static java.lang.String.format;
 
 @Configuration
 @RequiredArgsConstructor
-public class PicocliProvider implements IVersionProvider {
+public class InfoProvider implements IVersionProvider {
 
     @NonNull
     private final InfoProperties infoProperties;
@@ -19,10 +19,14 @@ public class PicocliProvider implements IVersionProvider {
         return infoProperties.executableName();
     }
 
+    public String getRawVersion() {
+        return infoProperties.version().replaceFirst("-SNAPSHOT|-RC|-RELEASE", "");
+    }
+
     @Override
     public String[] getVersion() {
         String name = infoProperties.name();
-        String version = infoProperties.version().replaceFirst("-SNAPSHOT|-RC|-RELEASE", "");
+        String version = getRawVersion();
 
         return new String[] {
             format("%s - version %s", name, version)
