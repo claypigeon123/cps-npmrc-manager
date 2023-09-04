@@ -11,7 +11,7 @@
 
     <groupId>com.cps.cli</groupId>
     <artifactId>cps-npmrc-manager</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
 
     <developers>
         <developer>
@@ -36,8 +36,8 @@
 
         <!-- DEPENDENCY VERSIONING -->
         <spock-bom.version>2.3-groovy-4.0</spock-bom.version>
-        <picocli.version>4.7.4</picocli.version>
-        <snakeyaml.version>2.1</snakeyaml.version>
+        <picocli.version>4.7.5</picocli.version>
+        <snakeyaml.version>2.2</snakeyaml.version>
         <objenesis.version>3.3</objenesis.version>
 
         <!-- PLUGIN VERSIONING -->
