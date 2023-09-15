@@ -56,7 +56,6 @@
             ./target/dependency-check-report.json
         </sonar.dependencyCheck.jsonReportPath>
         <sonar.dependencyCheck.summarize>true</sonar.dependencyCheck.summarize>
-        <sonar.java.libraries>target/classes</sonar.java.libraries>
         <sonar.coverage.exclusions>
             **App.java,
             **AppRunner.java,

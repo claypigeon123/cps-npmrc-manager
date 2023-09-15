@@ -4,7 +4,6 @@ import com.cps.cli.npmrcmanager.api.Api;
 import com.cps.cli.npmrcmanager.model.NpmrcProfile;
 import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration;
 import com.cps.cli.npmrcmanager.service.configuration.ConfigurationService;
-import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,7 +13,6 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @Command(name = "active", description = "-> Describe the current active profile", mixinStandardHelpOptions = true)
 public class ActiveApi extends Api {
 

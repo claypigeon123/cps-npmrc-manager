@@ -1,12 +1,8 @@
 package com.cps.cli.npmrcmanager.api;
 
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
 import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.IExitCodeGenerator;
 
-@EqualsAndHashCode
-@RequiredArgsConstructor
 public abstract class Api implements Runnable, IExitCodeGenerator {
 
     protected int exitCode = ExitCode.OK;
