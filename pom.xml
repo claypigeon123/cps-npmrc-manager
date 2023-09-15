@@ -5,13 +5,15 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.9</version>
+        <version>3.0.10</version>
         <relativePath/>
     </parent>
 
     <groupId>com.cps.cli</groupId>
     <artifactId>cps-npmrc-manager</artifactId>
     <version>1.0.3-SNAPSHOT</version>
+
+    <name>CPS Npmrc Manager Tool</name>
 
     <developers>
         <developer>
@@ -44,6 +46,29 @@
         <gmavenplus.version>3.0.0</gmavenplus.version>
         <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
         <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
+        <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
+
+        <!-- sonar -->
+        <sonar.dependencyCheck.htmlReportPath>
+            ./target/dependency-check-report.html
+        </sonar.dependencyCheck.htmlReportPath>
+        <sonar.dependencyCheck.jsonReportPath>
+            ./target/dependency-check-report.json
+        </sonar.dependencyCheck.jsonReportPath>
+        <sonar.dependencyCheck.summarize>true</sonar.dependencyCheck.summarize>
+        <sonar.coverage.exclusions>
+            **App.java,
+            **/config/**,
+            **/configuration/**,
+            **/exception/**,
+            **/data/**,
+            **/domain/**,
+            **/model/**,
+            **Config.java,
+            **Configuration.java,
+            **Properties.java,
+            **Props.java
+        </sonar.coverage.exclusions>
     </properties>
 
     <distributionManagement>
@@ -215,6 +240,11 @@
                         <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
                     </statelessTestsetReporter>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar-maven-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
