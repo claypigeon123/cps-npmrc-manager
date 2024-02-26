@@ -55,7 +55,8 @@
             **Config.java,
             **Configuration.java,
             **Properties.java,
-            **Props.java
+            **Props.java,
+            src/main/java/com/cps/cli/npmrcmanager/util/FilesystemHelper.java
         </sonar.coverage.exclusions>
     </properties>
 
