@@ -44,7 +44,7 @@ class FilesystemNpmrcServiceSpec extends Specification {
         given:
         String npmrcLocation = ".npmrc"
         String profilesLocation = "profiles"
-        String expectedProfileName = "npm-central"
+        String expectedProfileName = "central"
 
         when:
         NpmrcProfile result = npmrcService.recordNewNpmrcForCentralRegistryIntoProfile(npmrcLocation, profilesLocation)

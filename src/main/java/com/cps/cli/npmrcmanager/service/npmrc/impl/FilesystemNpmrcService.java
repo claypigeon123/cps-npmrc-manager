@@ -28,7 +28,7 @@ public class FilesystemNpmrcService implements NpmrcService {
     public NpmrcProfile recordExistingNpmrcIntoProfile(@NonNull String npmrcLocation, @NonNull String profilesLocation) {
         System.out.println("Existing .npmrc file detected!");
 
-        String currentNpmrcName = userInputService.promptForString("Enter a name for the current .npmrc config", "npm-central");
+        String currentNpmrcName = userInputService.promptForString("Enter a name for the current .npmrc config", "central");
 
         Path profileLocation = Path.of(profilesLocation, currentNpmrcName).toAbsolutePath();
 
@@ -52,7 +52,7 @@ public class FilesystemNpmrcService implements NpmrcService {
 
         filesystemHelper.write(npmrcPath, "registry=https://registry.npmjs.org/");
 
-        String profileName = "npm-central";
+        String profileName = "central";
         Path profileLocation = Path.of(profilesLocation, profileName).toAbsolutePath();
 
         NpmrcProfile profile = NpmrcProfile.builder()
