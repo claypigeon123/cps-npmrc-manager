@@ -1,13 +1,12 @@
 package com.cps.cli.npmrcmanager.service.configuration.impl
 
+import com.cps.cli.npmrcmanager.mapper.Mapper
 import com.cps.cli.npmrcmanager.model.NpmrcProfile
 import com.cps.cli.npmrcmanager.model.NpmrcmConfiguration
 import com.cps.cli.npmrcmanager.service.configuration.ConfigurationService
 import com.cps.cli.npmrcmanager.service.input.UserInputService
 import com.cps.cli.npmrcmanager.service.npmrc.NpmrcService
 import com.cps.cli.npmrcmanager.util.FilesystemHelper
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.ObjectWriter
 import spock.lang.Specification
 
 import java.nio.file.Path
@@ -21,26 +20,23 @@ class FilesystemConfigurationServiceSpec extends Specification {
     private static final Path DEFAULT_NPMRC_PATH = USER_HOME_PATH.resolve(".npmrc")
     private static final Path APP_HOME_PATH = USER_HOME_PATH.resolve(".npmrcm")
     private static final Path APP_PROFILES_FOLDER_PATH = APP_HOME_PATH.resolve("profiles")
-    private static final Path APP_CONFIG_JSON_PATH = APP_HOME_PATH.resolve("config.json")
+    private static final Path APP_CONFIG_JSON_PATH = APP_HOME_PATH.resolve("config.yml")
 
     // dependencies
-    ObjectWriter prettyPrinter = Spy(new ObjectMapper().writerWithDefaultPrettyPrinter())
-    ObjectMapper objectMapper = Spy() {
-        writerWithDefaultPrettyPrinter() >> prettyPrinter
-    }
+    Mapper mapper = Mock()
     UserInputService userInputService = Mock()
     NpmrcService npmrcService = Mock()
     FilesystemHelper filesystemHelper = Mock() {
         getDefaultNpmrcPath() >> DEFAULT_NPMRC_PATH
         getProfilesDirPath() >> APP_PROFILES_FOLDER_PATH
-        getConfigJsonPath() >> APP_CONFIG_JSON_PATH
+        getConfigFilePath() >> APP_CONFIG_JSON_PATH
     }
 
     // tested class
     ConfigurationService configurationService
 
     void setup() {
-        configurationService = new FilesystemConfigurationService(objectMapper, userInputService, npmrcService, filesystemHelper)
+        configurationService = new FilesystemConfigurationService(mapper, userInputService, npmrcService, filesystemHelper)
     }
 
     def "setup config with existing npmrc: [#existingNpmrc]"() {
@@ -59,7 +55,7 @@ class FilesystemConfigurationServiceSpec extends Specification {
         1 * filesystemHelper.exists(DEFAULT_NPMRC_PATH, false) >> existingNpmrc
         expectedCallsForNew * npmrcService.recordNewNpmrcForCentralRegistryIntoProfile(DEFAULT_NPMRC_PATH.toString(), APP_PROFILES_FOLDER_PATH.toAbsolutePath().toString()) >> profile
         expectedCallsForExisting * npmrcService.recordExistingNpmrcIntoProfile(DEFAULT_NPMRC_PATH.toString(), APP_PROFILES_FOLDER_PATH.toAbsolutePath().toString()) >> profile
-        1 * prettyPrinter.writeValueAsString(expectedConfig) >> expectedConfig.toString()
+        1 * mapper.writeValueAsString(expectedConfig) >> expectedConfig.toString()
         1 * filesystemHelper.write(APP_CONFIG_JSON_PATH, expectedConfig.toString())
 
         noExceptionThrown()
@@ -82,22 +78,30 @@ class FilesystemConfigurationServiceSpec extends Specification {
 
     def "load config - error reading config file"() {
         given:
-        String malformedConfigFileContents = "{{{{{{\"}"
+        String malformedConfigFileContents = """
+            casd:::::::::
+        asd...::::
+        """.stripIndent()
 
         when:
         configurationService.load()
 
         then:
         1 * filesystemHelper.read(APP_CONFIG_JSON_PATH) >> malformedConfigFileContents
-        1 * objectMapper.readValue(malformedConfigFileContents, NpmrcmConfiguration)
+        1 * mapper.readValue(malformedConfigFileContents, NpmrcmConfiguration) >> {
+            throw new IllegalStateException()
+        }
 
         thrown(IllegalStateException)
     }
 
     def "load config - error reading npmrc"() {
         given:
-        String configFileContents = "{ \"npmrcPath\": \"${DEFAULT_NPMRC_PATH.toAbsolutePath().toString().replace("\\", "\\\\")}\" }"
+        String configFileContents = "mock"
         String npmrcFileContents = "registry=https://registry.npmjs.org/"
+        NpmrcmConfiguration storedConfiguration = NpmrcmConfiguration.builder()
+            .npmrcPath(DEFAULT_NPMRC_PATH.toAbsolutePath().toString())
+            .build()
 
         and:
         NpmrcProfile npmCentralProfile = NpmrcProfile.builder()
@@ -118,7 +122,7 @@ class FilesystemConfigurationServiceSpec extends Specification {
 
         then:
         1 * filesystemHelper.read(APP_CONFIG_JSON_PATH) >> configFileContents
-        1 * objectMapper.readValue(configFileContents, NpmrcmConfiguration)
+        1 * mapper.readValue(configFileContents, NpmrcmConfiguration) >> storedConfiguration
         1 * filesystemHelper.read(DEFAULT_NPMRC_PATH.toAbsolutePath()) >> { throw new UncheckedIOException("io-err", new IOException("io-err")) }
         1 * filesystemHelper.list(APP_PROFILES_FOLDER_PATH) >> Stream.of(Path.of(npmCentralProfile.path()), Path.of(customProfile.path()))
         1 * filesystemHelper.exists(Path.of(npmCentralProfile.path()), false) >> true
@@ -133,8 +137,11 @@ class FilesystemConfigurationServiceSpec extends Specification {
 
     def "load config - a profile is a directory"() {
         given:
-        String configFileContents = "{ \"npmrcPath\": \"${DEFAULT_NPMRC_PATH.toAbsolutePath().toString().replace("\\", "\\\\")}\" }"
+        String configFileContents = "mock"
         String npmrcFileContents = "registry=https://registry.npmjs.org/"
+        NpmrcmConfiguration storedConfiguration = NpmrcmConfiguration.builder()
+            .npmrcPath(DEFAULT_NPMRC_PATH.toAbsolutePath().toString())
+            .build()
 
         and:
         NpmrcProfile npmCentralProfile = NpmrcProfile.builder()
@@ -154,7 +161,7 @@ class FilesystemConfigurationServiceSpec extends Specification {
 
         then:
         1 * filesystemHelper.read(APP_CONFIG_JSON_PATH) >> configFileContents
-        1 * objectMapper.readValue(configFileContents, NpmrcmConfiguration)
+        1 * mapper.readValue(configFileContents, NpmrcmConfiguration) >> storedConfiguration
         1 * filesystemHelper.read(DEFAULT_NPMRC_PATH.toAbsolutePath()) >> npmrcFileContents
         1 * filesystemHelper.list(APP_PROFILES_FOLDER_PATH) >> Stream.of(Path.of(npmCentralProfile.path()), Path.of(customProfile.path()))
         1 * filesystemHelper.exists(Path.of(npmCentralProfile.path()), false) >> true
@@ -168,8 +175,11 @@ class FilesystemConfigurationServiceSpec extends Specification {
 
     def "load config"() {
         given:
-        String configFileContents = "{ \"npmrcPath\": \"${DEFAULT_NPMRC_PATH.toAbsolutePath().toString().replace("\\", "\\\\")}\" }"
+        String configFileContents = "mock"
         String npmrcFileContents = "registry=https://registry.npmjs.org/"
+        NpmrcmConfiguration storedConfiguration = NpmrcmConfiguration.builder()
+            .npmrcPath(DEFAULT_NPMRC_PATH.toAbsolutePath().toString())
+            .build()
 
         and:
         NpmrcProfile npmCentralProfile = NpmrcProfile.builder()
@@ -190,7 +200,7 @@ class FilesystemConfigurationServiceSpec extends Specification {
 
         then:
         1 * filesystemHelper.read(APP_CONFIG_JSON_PATH) >> configFileContents
-        1 * objectMapper.readValue(configFileContents, NpmrcmConfiguration)
+        1 * mapper.readValue(configFileContents, NpmrcmConfiguration) >> storedConfiguration
         1 * filesystemHelper.read(DEFAULT_NPMRC_PATH.toAbsolutePath()) >> npmrcFileContents
         1 * filesystemHelper.list(APP_PROFILES_FOLDER_PATH) >> Stream.of(Path.of(npmCentralProfile.path()), Path.of(customProfile.path()))
         1 * filesystemHelper.exists(Path.of(npmCentralProfile.path()), false) >> true
@@ -239,10 +249,10 @@ class FilesystemConfigurationServiceSpec extends Specification {
         configurationService.save(configuration)
 
         then:
-        1 * prettyPrinter.writeValueAsString(configuration) >> { throw new IOException("io-err") }
+        1 * mapper.writeValueAsString(configuration) >> { throw new IllegalStateException("io-err") }
         0 * filesystemHelper.write(_, _)
 
-        thrown(UncheckedIOException)
+        thrown(IllegalStateException)
     }
 
     def "save"() {
@@ -262,13 +272,13 @@ class FilesystemConfigurationServiceSpec extends Specification {
                     .build()
             ])
             .build()
-        String serializedContent = format("{%n  \"npmrcPath\" : \"/home/user/.npmrc\"%n}")
+        String serializedContent = "mock"
 
         when:
         configurationService.save(configuration)
 
         then:
-        1 * prettyPrinter.writeValueAsString(configuration)
+        1 * mapper.writeValueAsString(configuration) >> serializedContent
         1 * filesystemHelper.write(APP_CONFIG_JSON_PATH, serializedContent)
 
         noExceptionThrown()

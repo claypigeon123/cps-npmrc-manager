@@ -16,7 +16,7 @@ public class FilesystemHelper {
     private static final Path DEFAULT_NPMRC_PATH = USER_HOME_PATH.resolve(".npmrc");
     private static final Path CONFIG_DIR = USER_HOME_PATH.resolve(".npmrcm");
     private static final Path PROFILES_DIR = CONFIG_DIR.resolve("profiles");
-    private static final Path CONFIG_JSON_PATH = CONFIG_DIR.resolve("config.json");
+    private static final Path CONFIG_FILE_PATH = CONFIG_DIR.resolve("config.yml");
 
     public Path getDefaultNpmrcPath() {
         return DEFAULT_NPMRC_PATH;
@@ -26,8 +26,8 @@ public class FilesystemHelper {
         return PROFILES_DIR;
     }
 
-    public Path getConfigJsonPath() {
-        return CONFIG_JSON_PATH;
+    public Path getConfigFilePath() {
+        return CONFIG_FILE_PATH;
     }
 
     public void copy(Path source, Path target) {

@@ -1,6 +1,5 @@
 package com.cps.cli.npmrcmanager.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,7 +19,6 @@ public class NpmrcmConfiguration implements Serializable {
 
     private String npmrcPath;
 
-    @JsonIgnore
     @Builder.Default
     private transient List<NpmrcProfile> profiles = new ArrayList<>();
 }
