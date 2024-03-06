@@ -18,12 +18,8 @@ public class YmlMapper implements Mapper {
     }
 
     @Override
-    public String writeValueAsString(Object value) throws IllegalStateException {
-        try {
-            return yaml().dumpAsMap(value);
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not write yml", e);
-        }
+    public String writeValueAsString(Object value) {
+        return yaml().dumpAsMap(value);
     }
 
     private Yaml yaml() {

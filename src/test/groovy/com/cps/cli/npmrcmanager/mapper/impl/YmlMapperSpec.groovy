@@ -48,4 +48,18 @@ class YmlMapperSpec extends Specification {
         result.npmrcPath == "/home/user/.npmrc"
         result.profiles.size() == 0
     }
+
+    def "read error"() {
+        given:
+        def configYml = """\
+        something else   s sd sd: /home/user/.npmrcasd::::----
+        .a....::::::::::::::::::::::::::::::::::::::::::::
+        """.stripIndent()
+
+        when:
+        mapper.readValue(configYml, NpmrcmConfiguration)
+
+        then:
+        thrown(IllegalStateException)
+    }
 }
