@@ -1,22 +1,17 @@
 package com.cps.cli.npmrcmanager.mapper.impl;
 
 import com.cps.cli.npmrcmanager.mapper.Mapper;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.introspector.BeanAccess;
 
 @Component
-@RequiredArgsConstructor
-public class SnakeYamlMapper implements Mapper {
-
-    @NonNull
-    private final Yaml yaml;
+public class YmlMapper implements Mapper {
 
     @Override
     public <T> T readValue(String value, Class<T> clazz) throws IllegalStateException {
         try {
-            return yaml.loadAs(value, clazz);
+            return yaml().loadAs(value, clazz);
         } catch (Exception e) {
             throw new IllegalStateException("Could not parse yml content", e);
         }
@@ -25,9 +20,16 @@ public class SnakeYamlMapper implements Mapper {
     @Override
     public String writeValueAsString(Object value) throws IllegalStateException {
         try {
-            return yaml.dump(value);
+            return yaml().dumpAsMap(value);
         } catch (Exception e) {
             throw new IllegalStateException("Could not write yml", e);
         }
+    }
+
+    private Yaml yaml() {
+        Yaml yaml = new Yaml();
+        yaml.setBeanAccess(BeanAccess.FIELD);
+
+        return yaml;
     }
 }
